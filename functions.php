@@ -198,3 +198,5 @@ class Sportlixa_Footer_Nav_Walker extends Walker_Nav_Menu {
 
 // Load theme settings panel
 require_once get_template_directory() . '/inc/theme-settings.php';
+
+

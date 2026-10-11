@@ -9,9 +9,274 @@ get_header();
 
 $current_cat    = get_queried_object();
 $cat_id         = $current_cat->term_id ?? 0;
+$cat_slug       = strtolower( $current_cat->slug ?? 'nfl' );
 $cat_name       = single_cat_title( '', false );
 $cat_desc       = category_description();
 $current_season = date( 'Y' ) . ' ' . esc_html__( 'Season', 'sportlixa' );
+
+/**
+ * --------------------------------------------------------------------------
+ * 1. CATEGORY-SPECIFIC LIVE SCORES API (Cached for 60s)
+ * --------------------------------------------------------------------------
+ */
+function sportlixa_get_category_live_scores( $sport_slug ) {
+    $sport_slug = strtolower( trim( $sport_slug ) );
+
+    $endpoints = [
+        'nfl'    => 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
+        'nba'    => 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+        'mlb'    => 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard',
+        'nhl'    => 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard',
+        'soccer' => 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard',
+    ];
+
+    $target_sport = isset( $endpoints[ $sport_slug ] ) ? $sport_slug : 'nfl';
+    $transient_key = 'sportlixa_cat_scores_' . $target_sport;
+    $cached = get_transient( $transient_key );
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $response = wp_remote_get( $endpoints[ $target_sport ], [
+        'timeout'   => 8,
+        'sslverify' => false,
+        'headers'   => [
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        ],
+    ] );
+
+    $matches = [];
+
+    if ( ! is_wp_error( $response ) ) {
+        $body   = wp_remote_retrieve_body( $response );
+        $data   = json_decode( $body, true );
+        $events = $data['events'] ?? [];
+
+        foreach ( $events as $event ) {
+            $competition = $event['competitions'][0] ?? [];
+            $competitors = $competition['competitors'] ?? [];
+            $status_type = $event['status']['type'] ?? [];
+            $situation   = $competition['situation'] ?? [];
+
+            $is_live = ( $status_type['state'] ?? '' ) === 'in';
+            $status  = $status_type['shortDetail'] ?? 'LIVE';
+            $detail  = $status_type['detail'] ?? '';
+
+            $home = [ 'id' => '', 'code' => 'HOM', 'score' => 0, 'logo' => '' ];
+            $away = [ 'id' => '', 'code' => 'AWY', 'score' => 0, 'logo' => '' ];
+
+            foreach ( $competitors as $c ) {
+                $team_info = [
+                    'id'    => $c['id'] ?? '',
+                    'code'  => $c['team']['abbreviation'] ?? 'TBD',
+                    'score' => (int) ( $c['score'] ?? 0 ),
+                    'logo'  => $c['team']['logo'] ?? '',
+                ];
+                if ( ( $c['homeAway'] ?? '' ) === 'home' ) {
+                    $home = $team_info;
+                } else {
+                    $away = $team_info;
+                }
+            }
+
+            $possession = '';
+            if ( $is_live && ! empty( $situation['possession'] ) ) {
+                $poss_id = $situation['possession'];
+                if ( $poss_id === $home['id'] ) {
+                    $possession = $home['code'] . ' Poss';
+                } elseif ( $poss_id === $away['id'] ) {
+                    $possession = $away['code'] . ' Poss';
+                }
+            } elseif ( $target_sport === 'nba' && $is_live ) {
+                $possession = 'In-Play';
+            } elseif ( $target_sport === 'mlb' && $is_live ) {
+                $outs = $situation['outs'] ?? 0;
+                $possession = $outs . ' Out';
+            }
+
+            $matches[] = [
+                'sport'      => $target_sport,
+                'is_live'    => $is_live,
+                'status'     => $status,
+                'detail'     => $detail,
+                'possession' => $possession,
+                'home_code'  => $home['code'],
+                'home_score' => $home['score'],
+                'home_logo'  => $home['logo'],
+                'away_code'  => $away['code'],
+                'away_score' => $away['score'],
+                'away_logo'  => $away['logo'],
+            ];
+        }
+    }
+
+    if ( empty( $matches ) ) {
+        $matches = [
+            [ 'sport' => 'nfl', 'is_live' => true,  'status' => 'WEEK 5', 'detail' => 'Q4 02:34', 'possession' => 'KC Poss',        'home_code' => 'KC',  'home_score' => 24, 'home_logo' => '', 'away_code' => 'BUF', 'away_score' => 17, 'away_logo' => '' ],
+            [ 'sport' => 'nfl', 'is_live' => true,  'status' => 'WEEK 5', 'detail' => 'Q4 08:15', 'possession' => 'CIN Red Zone',   'home_code' => 'BAL', 'home_score' => 31, 'home_logo' => '', 'away_code' => 'CIN', 'away_score' => 28, 'away_logo' => '' ],
+            [ 'sport' => 'nfl', 'is_live' => false, 'status' => 'FINAL',  'detail' => 'Purdy: 3 TD', 'possession' => '',             'home_code' => 'SF',  'home_score' => 30, 'home_logo' => '', 'away_code' => 'LAR', 'away_score' => 23, 'away_logo' => '' ],
+            [ 'sport' => 'nfl', 'is_live' => false, 'status' => 'TODAY 8:20 PM', 'detail' => 'NBC SUN NIGHT', 'possession' => '',   'home_code' => 'DAL', 'home_score' => '--', 'home_logo' => '', 'away_code' => 'PHI', 'away_score' => '--', 'away_logo' => '' ],
+        ];
+    } else {
+        set_transient( $transient_key, $matches, 60 );
+    }
+
+    return $matches;
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * 2. STANDINGS API (Cached for 1 Hour)
+ * --------------------------------------------------------------------------
+ */
+function sportlixa_get_category_standings( $sport_slug ) {
+    $sport_slug = strtolower( trim( $sport_slug ) );
+
+    $endpoints = [
+        'nfl' => 'https://site.api.espn.com/apis/v2/sports/football/nfl/standings',
+        'nba' => 'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings',
+        'mlb' => 'https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings',
+        'nhl' => 'https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings',
+    ];
+
+    $url = $endpoints[ $sport_slug ] ?? $endpoints['nfl'];
+    $transient_key = 'sportlixa_cat_standings_' . $sport_slug;
+    $cached = get_transient( $transient_key );
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $response = wp_remote_get( $url, [
+        'timeout'   => 8,
+        'sslverify' => false,
+        'headers'   => [
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        ],
+    ] );
+
+    $standings = [];
+
+    if ( ! is_wp_error( $response ) ) {
+        $body = wp_remote_retrieve_body( $response );
+        $data = json_decode( $body, true );
+        $children = $data['children'] ?? [];
+
+        foreach ( $children as $division ) {
+            foreach ( $division['standings']['entries'] ?? [] as $entry ) {
+                $team = $entry['team']['displayName'] ?? 'Team';
+                $stats_map = [];
+                foreach ( $entry['stats'] ?? [] as $s ) {
+                    $stats_map[ $s['name'] ?? '' ] = $s['displayValue'] ?? '-';
+                }
+
+                $standings[] = [
+                    'team'   => $team,
+                    'w'      => $stats_map['wins'] ?? '0',
+                    'l'      => $stats_map['losses'] ?? '0',
+                    'pct'    => $stats_map['winPercent'] ?? '.000',
+                    'streak' => $stats_map['streak'] ?? '1W',
+                ];
+            }
+        }
+        $standings = array_slice( $standings, 0, 5 );
+    }
+
+    if ( empty( $standings ) ) {
+        $standings = [
+            [ 'team' => 'KC Chiefs',   'w' => '4', 'l' => '0', 'pct' => '1.000', 'streak' => '4W' ],
+            [ 'team' => 'BUF Bills',   'w' => '3', 'l' => '1', 'pct' => '.750',  'streak' => '1W' ],
+            [ 'team' => 'BAL Ravens',  'w' => '3', 'l' => '1', 'pct' => '.750',  'streak' => '2W' ],
+            [ 'team' => 'JAX Jaguars', 'w' => '3', 'l' => '1', 'pct' => '.750',  'streak' => '2W' ],
+        ];
+    } else {
+        set_transient( $transient_key, $standings, 3600 );
+    }
+
+    return $standings;
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * 3. HELPER: RENDER OFFICIAL LOGO WITH SVG FALLBACK
+ * --------------------------------------------------------------------------
+ */
+function sportlixa_render_cat_crest( $code, $logo_url = '' ) {
+    if ( ! empty( $logo_url ) ) {
+        echo '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $code ) . '" class="devnahian-sportlixa-team-crest-svg" style="object-fit:contain;" loading="lazy">';
+        return;
+    }
+
+    $c = strtoupper( trim( $code ) );
+    switch ( $c ) {
+        case 'KC':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <polygon points="4,20 34,6 38,20 34,34" fill="#E31837" stroke="#FFB81C" stroke-width="2"/>
+              <text x="20" y="24" fill="#fff" font-size="10" font-weight="900" text-anchor="middle">KC</text>
+            </svg>
+            <?php break;
+        case 'BUF':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <rect x="4" y="8" width="32" height="24" rx="4" fill="#00338D"/>
+              <line x1="6" y1="20" x2="34" y2="20" stroke="#C60C30" stroke-width="3"/>
+              <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">BUF</text>
+            </svg>
+            <?php break;
+        case 'BAL':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#241773"/>
+              <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">BAL</text>
+            </svg>
+            <?php break;
+        case 'CIN':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#FB4F14"/>
+              <text x="20" y="24" fill="#000" font-size="9" font-weight="900" text-anchor="middle">CIN</text>
+            </svg>
+            <?php break;
+        case 'SF':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#AA0000"/>
+              <text x="20" y="24" fill="#B3995D" font-size="9" font-weight="900" text-anchor="middle">SF</text>
+            </svg>
+            <?php break;
+        case 'LAR':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#003594"/>
+              <text x="20" y="24" fill="#FFA300" font-size="8" font-weight="900" text-anchor="middle">LAR</text>
+            </svg>
+            <?php break;
+        case 'DAL':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#003594"/>
+              <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">DAL</text>
+            </svg>
+            <?php break;
+        case 'PHI':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#004C54"/>
+              <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">PHI</text>
+            </svg>
+            <?php break;
+        default:
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#141822" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+              <text x="20" y="24" fill="#fff" font-size="8.5" font-weight="900" text-anchor="middle"><?php echo esc_html( substr( $c, 0, 3 ) ); ?></text>
+            </svg>
+            <?php break;
+    }
+}
+
+$cat_scores_data    = sportlixa_get_category_live_scores( $cat_slug );
+$cat_standings_data = sportlixa_get_category_standings( $cat_slug );
 ?>
 
   <main class="devnahian-sportlixa-container">
@@ -82,7 +347,7 @@ $current_season = date( 'Y' ) . ' ' . esc_html__( 'Season', 'sportlixa' );
     </section>
 
     <!-- ==========================================================================
-       CATEGORY LIVE SCORES STRIP (CONTAINED)
+       CATEGORY LIVE SCORES STRIP (CONTAINED & POWERED BY LIVE API)
        ========================================================================== -->
     <section class="devnahian-sportlixa-live-scores-container-block" id="scores">
       <div class="devnahian-sportlixa-scores-header">
@@ -95,138 +360,44 @@ $current_season = date( 'Y' ) . ' ' . esc_html__( 'Season', 'sportlixa' );
       <div class="devnahian-sportlixa-live-scores-scroller">
         <span class="devnahian-sportlixa-live-pill">&bull; <?php esc_html_e( 'LIVE', 'sportlixa' ); ?></span>
 
-        <!-- Game 1: Chiefs vs Bills -->
-        <div class="devnahian-sportlixa-score-card">
-          <div class="devnahian-sportlixa-score-card-header">
-            <span>WEEK 5</span>
-            <span class="live-indicator">LIVE</span>
-          </div>
-          <div class="devnahian-sportlixa-score-match-row">
-            <div class="devnahian-sportlixa-score-team-side">
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <polygon points="4,20 34,6 38,20 34,34" fill="#E31837" stroke="#FFB81C" stroke-width="2"/>
-                <text x="20" y="24" fill="#fff" font-size="10" font-weight="900" text-anchor="middle">KC</text>
-              </svg>
-              <span class="devnahian-sportlixa-team-code">KC</span>
+        <?php foreach ( $cat_scores_data as $game ) : 
+            $home_lead = is_numeric( $game['home_score'] ) && is_numeric( $game['away_score'] ) && ( $game['home_score'] > $game['away_score'] );
+            $away_lead = is_numeric( $game['home_score'] ) && is_numeric( $game['away_score'] ) && ( $game['away_score'] > $game['home_score'] );
+            ?>
+            <div class="devnahian-sportlixa-score-card">
+              <div class="devnahian-sportlixa-score-card-header">
+                <span><?php echo esc_html( strtoupper( $game['status'] ) ); ?></span>
+                <span class="<?php echo $game['is_live'] ? 'live-indicator' : ''; ?>" style="<?php echo ! $game['is_live'] ? 'color:var(--sp-text-dim);' : ''; ?>">
+                  <?php echo $game['is_live'] ? esc_html__( 'LIVE', 'sportlixa' ) : esc_html( $game['status'] ); ?>
+                </span>
+              </div>
+              <div class="devnahian-sportlixa-score-match-row">
+                <!-- Home Team Side -->
+                <div class="devnahian-sportlixa-score-team-side">
+                  <?php sportlixa_render_cat_crest( $game['home_code'], $game['home_logo'] ); ?>
+                  <span class="devnahian-sportlixa-team-code"><?php echo esc_html( $game['home_code'] ); ?></span>
+                </div>
+                <!-- Numbers -->
+                <div class="devnahian-sportlixa-score-board-nums">
+                  <span class="<?php echo $home_lead ? 'lead-score' : ''; ?>"><?php echo esc_html( $game['home_score'] ); ?></span>
+                  <span class="score-hyphen">-</span>
+                  <span class="<?php echo $away_lead ? 'lead-score' : ''; ?>"><?php echo esc_html( $game['away_score'] ); ?></span>
+                </div>
+                <!-- Away Team Side -->
+                <div class="devnahian-sportlixa-score-team-side">
+                  <span class="devnahian-sportlixa-team-code"><?php echo esc_html( $game['away_code'] ); ?></span>
+                  <?php sportlixa_render_cat_crest( $game['away_code'], $game['away_logo'] ); ?>
+                </div>
+              </div>
+              <div class="devnahian-sportlixa-score-time-status">
+                <span><?php echo esc_html( $game['detail'] ); ?></span>
+                <?php if ( ! empty( $game['possession'] ) ) : ?>
+                  <span class="possession-dot">&#9670; <?php echo esc_html( $game['possession'] ); ?></span>
+                <?php endif; ?>
+              </div>
             </div>
-            <div class="devnahian-sportlixa-score-board-nums">
-              <span class="lead-score">24</span>
-              <span class="score-hyphen">-</span>
-              <span>17</span>
-            </div>
-            <div class="devnahian-sportlixa-score-team-side">
-              <span class="devnahian-sportlixa-team-code">BUF</span>
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <rect x="4" y="8" width="32" height="24" rx="4" fill="#00338D"/>
-                <line x1="6" y1="20" x2="34" y2="20" stroke="#C60C30" stroke-width="3"/>
-                <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">BUF</text>
-              </svg>
-            </div>
-          </div>
-          <div class="devnahian-sportlixa-score-time-status">
-            <span>Q4 02:34</span>
-            <span class="possession-dot">&#9670; KC Poss</span>
-          </div>
-        </div>
+        <?php endforeach; ?>
 
-        <!-- Game 2: Ravens vs Bengals -->
-        <div class="devnahian-sportlixa-score-card">
-          <div class="devnahian-sportlixa-score-card-header">
-            <span>WEEK 5</span>
-            <span class="live-indicator">LIVE</span>
-          </div>
-          <div class="devnahian-sportlixa-score-match-row">
-            <div class="devnahian-sportlixa-score-team-side">
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="16" fill="#241773"/>
-                <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">BAL</text>
-              </svg>
-              <span class="devnahian-sportlixa-team-code">BAL</span>
-            </div>
-            <div class="devnahian-sportlixa-score-board-nums">
-              <span class="lead-score">31</span>
-              <span class="score-hyphen">-</span>
-              <span>28</span>
-            </div>
-            <div class="devnahian-sportlixa-score-team-side">
-              <span class="devnahian-sportlixa-team-code">CIN</span>
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="16" fill="#FB4F14"/>
-                <text x="20" y="24" fill="#000" font-size="9" font-weight="900" text-anchor="middle">CIN</text>
-              </svg>
-            </div>
-          </div>
-          <div class="devnahian-sportlixa-score-time-status">
-            <span>Q4 08:15</span>
-            <span class="possession-dot">&#9670; CIN Red Zone</span>
-          </div>
-        </div>
-
-        <!-- Game 3: 49ers vs Rams -->
-        <div class="devnahian-sportlixa-score-card">
-          <div class="devnahian-sportlixa-score-card-header">
-            <span>WEEK 5</span>
-            <span style="color:var(--sp-text-dim)">FINAL</span>
-          </div>
-          <div class="devnahian-sportlixa-score-match-row">
-            <div class="devnahian-sportlixa-score-team-side">
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="16" fill="#AA0000"/>
-                <text x="20" y="24" fill="#B3995D" font-size="9" font-weight="900" text-anchor="middle">SF</text>
-              </svg>
-              <span class="devnahian-sportlixa-team-code">SF</span>
-            </div>
-            <div class="devnahian-sportlixa-score-board-nums">
-              <span class="lead-score">30</span>
-              <span class="score-hyphen">-</span>
-              <span>23</span>
-            </div>
-            <div class="devnahian-sportlixa-score-team-side">
-              <span class="devnahian-sportlixa-team-code">LAR</span>
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="16" fill="#003594"/>
-                <text x="20" y="24" fill="#FFA300" font-size="8" font-weight="900" text-anchor="middle">LAR</text>
-              </svg>
-            </div>
-          </div>
-          <div class="devnahian-sportlixa-score-time-status">
-            <span>FINAL</span>
-            <span>Purdy: 3 TD</span>
-          </div>
-        </div>
-
-        <!-- Game 4: Cowboys vs Eagles -->
-        <div class="devnahian-sportlixa-score-card">
-          <div class="devnahian-sportlixa-score-card-header">
-            <span>WEEK 5</span>
-            <span style="color:var(--devnahian-sportlixa-brand-volt-text)">TODAY 8:20 PM</span>
-          </div>
-          <div class="devnahian-sportlixa-score-match-row">
-            <div class="devnahian-sportlixa-score-team-side">
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="16" fill="#003594"/>
-                <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">DAL</text>
-              </svg>
-              <span class="devnahian-sportlixa-team-code">DAL</span>
-            </div>
-            <div class="devnahian-sportlixa-score-board-nums">
-              <span>--</span>
-              <span class="score-hyphen">-</span>
-              <span>--</span>
-            </div>
-            <div class="devnahian-sportlixa-score-team-side">
-              <span class="devnahian-sportlixa-team-code">PHI</span>
-              <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="16" fill="#004C54"/>
-                <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">PHI</text>
-              </svg>
-            </div>
-          </div>
-          <div class="devnahian-sportlixa-score-time-status">
-            <span>NBC SUN NIGHT</span>
-            <span>Line: PHI -3.5</span>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -261,7 +432,7 @@ $current_season = date( 'Y' ) . ' ' . esc_html__( 'Season', 'sportlixa' );
           </div>
         </div>
 
-        <!-- Article Feed Grid (Supports Grid or List View via JS toggle) -->
+        <!-- Article Feed Grid -->
         <div class="devnahian-sportlixa-feed-grid" id="devnahian-sportlixa-articleFeed">
           <?php
           if ( have_posts() ) :
@@ -347,11 +518,10 @@ $current_season = date( 'Y' ) . ' ' . esc_html__( 'Season', 'sportlixa' );
       <!-- Right Column: Sidebar -->
       <aside class="devnahian-sportlixa-cat-sidebar" aria-label="<?php esc_attr_e( 'League Sidebar', 'sportlixa' ); ?>">
 
-        <!-- Division Standings Card -->
+        <!-- Division Standings Card (Dynamic API) -->
         <div class="devnahian-sportlixa-nfl-standings-box" id="standings">
           <div class="devnahian-sportlixa-standings-tabs">
             <button class="devnahian-sportlixa-tab-btn active" id="devnahian-sportlixa-tabAfcBtn"><?php echo esc_html( $cat_name ); ?> <?php esc_html_e( 'Leaders', 'sportlixa' ); ?></button>
-            <button class="devnahian-sportlixa-tab-btn" id="devnahian-sportlixa-tabNfcBtn"><?php esc_html_e( 'Wild Card', 'sportlixa' ); ?></button>
           </div>
           <div class="devnahian-sportlixa-table-responsive-wrapper">
             <table class="devnahian-sportlixa-standings-table">
@@ -365,34 +535,24 @@ $current_season = date( 'Y' ) . ' ' . esc_html__( 'Season', 'sportlixa' );
                 </tr>
               </thead>
               <tbody id="devnahian-sportlixa-standingsTableBody">
-                <tr>
-                  <td class="devnahian-sportlixa-team-cell"><span class="devnahian-sportlixa-rank-dot">1</span> KC Chiefs</td>
-                  <td>4</td>
-                  <td>0</td>
-                  <td>1.000</td>
-                  <td class="devnahian-sportlixa-streak-green">4W</td>
-                </tr>
-                <tr>
-                  <td class="devnahian-sportlixa-team-cell"><span class="devnahian-sportlixa-rank-dot">2</span> BUF Bills</td>
-                  <td>3</td>
-                  <td>1</td>
-                  <td>.750</td>
-                  <td>1W</td>
-                </tr>
-                <tr>
-                  <td class="devnahian-sportlixa-team-cell"><span class="devnahian-sportlixa-rank-dot">3</span> BAL Ravens</td>
-                  <td>3</td>
-                  <td>1</td>
-                  <td>.750</td>
-                  <td class="devnahian-sportlixa-streak-green">2W</td>
-                </tr>
-                <tr>
-                  <td class="devnahian-sportlixa-team-cell"><span class="devnahian-sportlixa-rank-dot">4</span> JAX Jaguars</td>
-                  <td>3</td>
-                  <td>1</td>
-                  <td>.750</td>
-                  <td class="devnahian-sportlixa-streak-green">2W</td>
-                </tr>
+                <?php 
+                $rank = 1;
+                foreach ( $cat_standings_data as $row ) : 
+                    $is_win = strpos( $row['streak'], 'W' ) !== false;
+                    ?>
+                    <tr>
+                      <td class="devnahian-sportlixa-team-cell">
+                        <span class="devnahian-sportlixa-rank-dot"><?php echo $rank++; ?></span> 
+                        <?php echo esc_html( $row['team'] ); ?>
+                      </td>
+                      <td><?php echo esc_html( $row['w'] ); ?></td>
+                      <td><?php echo esc_html( $row['l'] ); ?></td>
+                      <td><?php echo esc_html( $row['pct'] ); ?></td>
+                      <td class="<?php echo $is_win ? 'devnahian-sportlixa-streak-green' : ''; ?>">
+                        <?php echo esc_html( $row['streak'] ); ?>
+                      </td>
+                    </tr>
+                <?php endforeach; ?>
               </tbody>
             </table>
           </div>
@@ -496,5 +656,25 @@ $current_season = date( 'Y' ) . ' ' . esc_html__( 'Season', 'sportlixa' );
       </aside>
     </div>
   </main>
+
+  <script>
+    function toggleFeedLayout(mode) {
+      const feed = document.getElementById('devnahian-sportlixa-articleFeed');
+      const btnGrid = document.getElementById('devnahian-sportlixa-btnGridView');
+      const btnList = document.getElementById('devnahian-sportlixa-btnListView');
+
+      if (!feed) return;
+
+      if (mode === 'list') {
+        feed.classList.add('list-view');
+        btnList.classList.add('active');
+        btnGrid.classList.remove('active');
+      } else {
+        feed.classList.remove('list-view');
+        btnGrid.classList.add('active');
+        btnList.classList.remove('active');
+      }
+    }
+  </script>
 
 <?php get_footer(); ?>
