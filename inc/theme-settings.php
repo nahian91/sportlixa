@@ -1,7 +1,7 @@
 <?php
 /**
  * Sportlixa Theme Settings
- * Clean, functional options panel without style/color settings.
+ * Clean, functional options panel with dynamic Homepage Column Posts switchers.
  *
  * @package Sportlixa
  */
@@ -81,7 +81,68 @@ function sportlixa_settings_init() {
     );
 
     // =========================================================================
-    // TAB 2: Post & Comments Menu
+    // TAB 2: Column Posts (Homepage Layout Switches)
+    // =========================================================================
+    add_settings_section(
+        'sportlixa_section_columns',
+        __( 'Homepage Column Posts Feed Manager', 'sportlixa' ),
+        'sportlixa_columns_section_desc',
+        'sportlixa-settings-homepage'
+    );
+
+    add_settings_field(
+        'hero_feed_type',
+        __( 'Main Lead Hero Story', 'sportlixa' ),
+        'sportlixa_render_select_field',
+        'sportlixa-settings-homepage',
+        'sportlixa_section_columns',
+        [
+            'id'      => 'hero_feed_type',
+            'options' => [
+                'latest'   => __( 'Latest Published Post (Automatic)', 'sportlixa' ),
+                'featured' => __( 'Featured Posts Only (Sticky Posts Flag)', 'sportlixa' ),
+                'category' => __( 'Target Specific Category (NFL Lead)', 'sportlixa' ),
+            ],
+            'desc'    => __( 'Controls how the primary 1-post hero banner fetches its content.', 'sportlixa' ),
+        ]
+    );
+
+    add_settings_field(
+        'top_stories_feed_type',
+        __( 'Top Stories Column 1 & 2', 'sportlixa' ),
+        'sportlixa_render_select_field',
+        'sportlixa-settings-homepage',
+        'sportlixa_section_columns',
+        [
+            'id'      => 'top_stories_feed_type',
+            'options' => [
+                'latest'    => __( 'Latest News Stream (Default Offset)', 'sportlixa' ),
+                'popular'   => __( 'Most Commented / Trending Stream', 'sportlixa' ),
+                'editorial' => __( 'Handpicked / Sticky Posts Only', 'sportlixa' ),
+            ],
+            'desc'    => __( 'Select the feed query mode for the 3-column Top Stories block.', 'sportlixa' ),
+        ]
+    );
+
+    add_settings_field(
+        'spotlights_feed_type',
+        __( 'Multi-Sport Spotlight Hub', 'sportlixa' ),
+        'sportlixa_render_select_field',
+        'sportlixa-settings-homepage',
+        'sportlixa_section_columns',
+        [
+            'id'      => 'spotlights_feed_type',
+            'options' => [
+                'by_category' => __( 'Automatic League Slugs (NBA, MLB, NHL, Soccer)', 'sportlixa' ),
+                'featured'    => __( 'Editorial Picks (Sticky Posts Flag)', 'sportlixa' ),
+                'recent'      => __( 'Latest 4 Posts Regardless of League', 'sportlixa' ),
+            ],
+            'desc'    => __( 'Controls how the 4-card spotlight strip queries articles.', 'sportlixa' ),
+        ]
+    );
+
+    // =========================================================================
+    // TAB 3: Post & Comments Menu
     // =========================================================================
     add_settings_section(
         'sportlixa_section_single',
@@ -136,7 +197,7 @@ function sportlixa_settings_init() {
     );
 
     // =========================================================================
-    // TAB 3: Scores & Matchup
+    // TAB 4: Scores & Matchup
     // =========================================================================
     add_settings_section(
         'sportlixa_section_marquee',
@@ -191,7 +252,7 @@ function sportlixa_settings_init() {
     );
 
     // =========================================================================
-    // TAB 4: Social & Contact
+    // TAB 5: Social & Contact
     // =========================================================================
     add_settings_section(
         'sportlixa_section_social',
@@ -264,7 +325,7 @@ function sportlixa_settings_init() {
     );
 
     // =========================================================================
-    // TAB 5: Custom Scripts
+    // TAB 6: Custom Scripts
     // =========================================================================
     add_settings_section(
         'sportlixa_section_code',
@@ -294,8 +355,33 @@ function sportlixa_settings_init() {
 add_action( 'admin_init', 'sportlixa_settings_init' );
 
 /**
- * 3. Form Input Renderers
+ * 3. Section Descriptions
  */
+function sportlixa_columns_section_desc() {
+    echo '<p style="color:#64748b; font-size:13.5px;">' . esc_html__( 'Switch how stories populate your homepage blocks. Toggle between auto-updating query feeds or handpicked editorial sticky stories.', 'sportlixa' ) . '</p>';
+}
+
+/**
+ * 4. Form Input Renderers
+ */
+function sportlixa_render_select_field( $args ) {
+    $options = get_option( 'sportlixa_options', [] );
+    $id      = $args['id'];
+    $val     = $options[ $id ] ?? array_key_first( $args['options'] );
+    $desc    = $args['desc'] ?? '';
+    ?>
+    <select id="<?php echo esc_attr( $id ); ?>" name="sportlixa_options[<?php echo esc_attr( $id ); ?>]" style="min-width: 280px;">
+        <?php foreach ( $args['options'] as $key => $label ) : ?>
+            <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $val, $key ); ?>>
+                <?php echo esc_html( $label ); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <?php if ( ! empty( $desc ) ) : ?>
+        <p class="description" style="margin-top: 5px; color: #64748b;"><?php echo esc_html( $desc ); ?></p>
+    <?php endif;
+}
+
 function sportlixa_render_text_field( $args ) {
     $options = get_option( 'sportlixa_options', [] );
     $id      = $args['id'];
@@ -351,7 +437,7 @@ function sportlixa_render_number_field( $args ) {
 }
 
 /**
- * 4. Data Sanitization
+ * 5. Data Sanitization
  */
 function sportlixa_sanitize_options( $input ) {
     $existing = get_option( 'sportlixa_options', [] );
@@ -369,10 +455,17 @@ function sportlixa_sanitize_options( $input ) {
     foreach ( $checkboxes as $cb ) {
         if ( isset( $input[ $cb ] ) ) {
             $clean[ $cb ] = 1;
-        } elseif ( isset( $_POST['sportlixa_tab_submitted'] ) ) {
+        } elseif ( isset( $_POST['sportlixa_tab_submitted'] ) && 'header' === $_POST['sportlixa_tab_submitted'] ) {
+            $clean[ $cb ] = 0;
+        } elseif ( isset( $_POST['sportlixa_tab_submitted'] ) && 'single' === $_POST['sportlixa_tab_submitted'] ) {
             $clean[ $cb ] = 0;
         }
     }
+
+    // Column Posts Select Switches
+    if ( isset( $input['hero_feed_type'] ) )        $clean['hero_feed_type']        = sanitize_key( $input['hero_feed_type'] );
+    if ( isset( $input['top_stories_feed_type'] ) ) $clean['top_stories_feed_type'] = sanitize_key( $input['top_stories_feed_type'] );
+    if ( isset( $input['spotlights_feed_type'] ) )  $clean['spotlights_feed_type']  = sanitize_key( $input['spotlights_feed_type'] );
 
     // Text inputs
     if ( isset( $input['ticker_badge_label'] ) )    $clean['ticker_badge_label']    = sanitize_text_field( $input['ticker_badge_label'] );
@@ -402,7 +495,7 @@ function sportlixa_sanitize_options( $input ) {
 }
 
 /**
- * 5. Tabbed Admin Settings Page
+ * 6. Tabbed Admin Settings Page
  */
 function sportlixa_settings_page_html() {
     if ( ! current_user_can( 'manage_options' ) ) {
@@ -411,11 +504,12 @@ function sportlixa_settings_page_html() {
 
     $active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'header';
     $tabs = [
-        'header'  => __( 'Header & Ticker', 'sportlixa' ),
-        'single'  => __( 'Post & Comments Menu', 'sportlixa' ),
-        'marquee' => __( 'Scores & Matchup', 'sportlixa' ),
-        'social'  => __( 'Social & Contact', 'sportlixa' ),
-        'code'    => __( 'Custom Scripts', 'sportlixa' ),
+        'header'   => __( 'Header & Ticker', 'sportlixa' ),
+        'homepage' => __( 'Column Posts', 'sportlixa' ),
+        'single'   => __( 'Post & Comments Menu', 'sportlixa' ),
+        'marquee'  => __( 'Scores & Matchup', 'sportlixa' ),
+        'social'   => __( 'Social & Contact', 'sportlixa' ),
+        'code'     => __( 'Custom Scripts', 'sportlixa' ),
     ];
     ?>
     <div class="wrap sportlixa-settings-wrap">
@@ -432,7 +526,7 @@ function sportlixa_settings_page_html() {
         <?php endforeach; ?>
       </nav>
 
-      <form action="options.php" method="post" style="background:#fff; border:1px solid #ccd0d4; padding:20px 28px; border-radius:4px; max-width:800px;">
+      <form action="options.php" method="post" style="background:#fff; border:1px solid #ccd0d4; padding:20px 28px; border-radius:4px; max-width:850px;">
         <input type="hidden" name="sportlixa_tab_submitted" value="<?php echo esc_attr( $active_tab ); ?>" />
         <?php
         settings_fields( 'sportlixa_options_group' );
@@ -445,7 +539,7 @@ function sportlixa_settings_page_html() {
 }
 
 /**
- * 6. Global Theme Option Helper
+ * 7. Global Theme Option Helper
  */
 function sportlixa_get_option( $key, $default = '' ) {
     $options = get_option( 'sportlixa_options', [] );
@@ -453,7 +547,7 @@ function sportlixa_get_option( $key, $default = '' ) {
 }
 
 /**
- * 7. Inject Custom Header / Footer Code
+ * 8. Inject Custom Header / Footer Code
  */
 function sportlixa_output_custom_options() {
     $header_code = sportlixa_get_option( 'custom_header_code', '' );

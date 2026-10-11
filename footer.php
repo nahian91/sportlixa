@@ -153,7 +153,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 $cat_badge = ! empty( $cats ) ? strtoupper( $cats[0]->name ) : 'SPORT';
                 ?>
                 <li class="devnahian-sportlixa-search-result-item" data-url="<?php the_permalink(); ?>">
-                  <span><strong><?php the_title(); ?></strong></span>
+                  <span><strong><a href="<?php the_permalink();?>"><?php the_title(); ?></a></strong></span>
                   <span class="sport-badge"><?php echo esc_html( $cat_badge ); ?></span>
                 </li>
                 <?php

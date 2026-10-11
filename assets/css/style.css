@@ -10505,3 +10505,286 @@
 	min-width: 180px;
 	max-width: 180px;
 }
+.devnahian-sportlixa-analysis-thumb.devnahian-sportlixa-img-box {
+	min-width: 180px;
+	max-width: 180px;
+}
+
+/* ==========================================================================
+   SPORTLIXA - PREMIUM DESKTOP DROPDOWN & MOBILE DRAWER NAVIGATION
+   ========================================================================== */
+
+/* Navbar Container */
+.devnahian-sportlixa-navbar {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  position: relative;
+}
+
+/* Nav Item Wrap */
+.devnahian-sportlixa-nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Invisible Hover Bridge: Prevents dropdown closing when mouse moves over the gap */
+.devnahian-sportlixa-nav-item::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: transparent;
+}
+
+/* Top-Level Links */
+.devnahian-sportlixa-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--sl-text-primary, #f1f5f9);
+  text-decoration: none;
+  padding: 0.85rem 0;
+  position: relative;
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.devnahian-sportlixa-nav-link:hover,
+.devnahian-sportlixa-nav-link.active,
+.devnahian-sportlixa-nav-item:hover > .devnahian-sportlixa-nav-link {
+  color: var(--sl-volt, #ccff00);
+}
+
+/* Animated Caret */
+.dropdown-caret {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.2s ease;
+  stroke: var(--sl-text-secondary, #94a3b8);
+}
+
+.devnahian-sportlixa-nav-item:hover .dropdown-caret {
+  transform: rotate(180deg);
+  stroke: var(--sl-volt, #ccff00);
+}
+
+/* ==========================================================================
+   GLASSMORPHISM DESKTOP FLYOUT MENU
+   ========================================================================== */
+.devnahian-sportlixa-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -0.5rem;
+  min-width: 220px;
+  
+  /* Acrylic dark glass */
+  background: rgba(14, 19, 28, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.5rem;
+  box-shadow: 
+    0 20px 40px -8px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 25px rgba(204, 255, 0, 0.04);
+  
+  /* Hidden State with spring transform */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(12px) scale(0.97);
+  pointer-events: none;
+  transition: 
+    opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.22s;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Volt accent beam at top edge */
+.devnahian-sportlixa-dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--sl-volt, #ccff00), transparent);
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+/* Dropdown Reveal on Hover & Focus */
+.devnahian-sportlixa-nav-item:hover > .devnahian-sportlixa-dropdown-menu,
+.devnahian-sportlixa-nav-item:focus-within > .devnahian-sportlixa-dropdown-menu {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Individual Dropdown Links */
+.devnahian-sportlixa-dropdown-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.825rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--sl-text-secondary, #94a3b8);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: 
+    background-color 0.18s ease,
+    color 0.18s ease,
+    padding-left 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Submenu Hover State */
+.devnahian-sportlixa-dropdown-link:hover,
+.devnahian-sportlixa-dropdown-link.active {
+  background: rgba(204, 255, 0, 0.08);
+  color: #ffffff;
+  padding-left: 1.25rem;
+}
+
+/* Left Indicator Pip */
+.devnahian-sportlixa-dropdown-link::before {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  width: 4px;
+  height: 4px;
+  background: var(--sl-volt, #ccff00);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.devnahian-sportlixa-dropdown-link:hover::before,
+.devnahian-sportlixa-dropdown-link.active::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ==========================================================================
+   MOBILE DRAWER ACCORDION SUBMENU
+   ========================================================================== */
+.devnahian-sportlixa-drawer-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.devnahian-sportlixa-mobile-nav-item {
+  border-bottom: 1px solid var(--sl-border, rgba(255, 255, 255, 0.06));
+}
+
+.devnahian-sportlixa-drawer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.5rem;
+}
+
+.devnahian-sportlixa-mobile-nav-link {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  color: var(--sl-text-primary, #f1f5f9);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease;
+}
+
+.devnahian-sportlixa-mobile-nav-link.active,
+.devnahian-sportlixa-mobile-nav-link:hover {
+  color: var(--sl-volt, #ccff00);
+}
+
+.devnahian-sportlixa-drawer-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--sl-text-secondary, #94a3b8);
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.devnahian-sportlixa-drawer-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.drawer-arrow {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.2s ease;
+}
+
+.devnahian-sportlixa-mobile-nav-item.open > .devnahian-sportlixa-drawer-row .drawer-arrow {
+  transform: rotate(180deg);
+  stroke: var(--sl-volt, #ccff00);
+}
+
+.drawer-leaf-icon {
+  color: var(--sl-text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  padding-right: 0.5rem;
+}
+
+/* Accordion Drawer Panel */
+.devnahian-sportlixa-mobile-submenu {
+  display: none;
+  background: rgba(0, 0, 0, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 0.25rem 0 0.5rem;
+}
+
+.devnahian-sportlixa-mobile-nav-item.open > .devnahian-sportlixa-mobile-submenu {
+  display: block;
+}
+
+.devnahian-sportlixa-mobile-nav-link.is-sub-item {
+  padding: 0.7rem 1rem 0.7rem 2.25rem;
+  font-size: 0.825rem;
+  color: var(--sl-text-secondary, #94a3b8);
+  position: relative;
+}
+
+.devnahian-sportlixa-mobile-nav-link.is-sub-item::before {
+  content: "";
+  position: absolute;
+  left: 1.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--sl-border, rgba(255, 255, 255, 0.2));
+  transition: background-color 0.2s ease;
+}
+
+.devnahian-sportlixa-mobile-nav-link.is-sub-item:hover::before,
+.devnahian-sportlixa-mobile-nav-link.is-sub-item.active::before {
+  background: var(--sl-volt, #ccff00);
+}
+
+.devnahian-sportlixa-mobile-nav-link.is-sub-item:hover,
+.devnahian-sportlixa-mobile-nav-link.is-sub-item.active {
+  color: #ffffff;
+}
