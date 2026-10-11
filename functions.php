@@ -498,3 +498,366 @@ function sportlixa_api_get_nfl_odds() {
     set_transient( $transient_key, $odds_list, 300 );
     return $odds_list;
 }
+
+/**
+ * --------------------------------------------------------------------------
+ * 1. ESPN LIVE SCORES API (Cached for 60s) - ALL GAMES & OFFICIAL LOGOS
+ * --------------------------------------------------------------------------
+ */
+function sportlixa_get_espn_live_scores() {
+    $transient_key = 'sportlixa_cached_live_scores';
+
+    $cached = get_transient( $transient_key );
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $leagues = [
+        'nfl' => 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
+        'nba' => 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+        'mlb' => 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard',
+        'nhl' => 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard',
+    ];
+
+    $matches = [];
+
+    foreach ( $leagues as $sport => $url ) {
+        $response = wp_remote_get( $url, [
+            'timeout'   => 8,
+            'sslverify' => false,
+            'headers'   => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            ]
+        ] );
+
+        if ( is_wp_error( $response ) ) {
+            continue;
+        }
+
+        $body   = wp_remote_retrieve_body( $response );
+        $data   = json_decode( $body, true );
+        $events = $data['events'] ?? [];
+
+        foreach ( $events as $event ) {
+            $competition = $event['competitions'][0] ?? [];
+            $competitors = $competition['competitors'] ?? [];
+            $status_type = $event['status']['type'] ?? [];
+            $situation   = $competition['situation'] ?? [];
+
+            $is_live = ( $status_type['state'] ?? '' ) === 'in';
+            $status  = $status_type['shortDetail'] ?? 'LIVE';
+            $detail  = $status_type['detail'] ?? '';
+
+            $home = [ 'id' => '', 'code' => 'HOM', 'score' => 0, 'logo' => '' ];
+            $away = [ 'id' => '', 'code' => 'AWY', 'score' => 0, 'logo' => '' ];
+
+            foreach ( $competitors as $c ) {
+                $team_data = [
+                    'id'    => $c['id'] ?? '',
+                    'code'  => $c['team']['abbreviation'] ?? 'TBD',
+                    'score' => (int)( $c['score'] ?? 0 ),
+                    'logo'  => $c['team']['logo'] ?? '',
+                ];
+                if ( ( $c['homeAway'] ?? '' ) === 'home' ) {
+                    $home = $team_data;
+                } else {
+                    $away = $team_data;
+                }
+            }
+
+            $possession = '';
+            if ( $is_live && ! empty( $situation['possession'] ) ) {
+                $poss_id = $situation['possession'];
+                if ( $poss_id === $home['id'] ) {
+                    $possession = $home['code'] . ' Poss';
+                } elseif ( $poss_id === $away['id'] ) {
+                    $possession = $away['code'] . ' Poss';
+                }
+            } elseif ( $sport === 'nba' && $is_live ) {
+                $possession = 'In-Play';
+            } elseif ( $sport === 'mlb' && $is_live ) {
+                $outs = $situation['outs'] ?? 0;
+                $possession = $outs . ' Out';
+            }
+
+            $matches[] = [
+                'sport'      => $sport,
+                'is_live'    => $is_live,
+                'status'     => $status,
+                'detail'     => $detail,
+                'possession' => $possession,
+                'home_code'  => $home['code'],
+                'home_score' => $home['score'],
+                'home_logo'  => $home['logo'],
+                'away_code'  => $away['code'],
+                'away_score' => $away['score'],
+                'away_logo'  => $away['logo'],
+            ];
+        }
+    }
+
+    if ( empty( $matches ) ) {
+        $matches = [
+            [ 'sport' => 'nfl', 'is_live' => true,  'status' => 'LIVE',     'detail' => 'Q4 02:34',   'possession' => 'KC Poss',       'home_code' => 'KC',  'home_score' => 24, 'home_logo' => '', 'away_code' => 'BUF', 'away_score' => 17, 'away_logo' => '' ],
+            [ 'sport' => 'nba', 'is_live' => true,  'status' => 'LIVE',     'detail' => 'Q4 06:12',   'possession' => 'Bonus',         'home_code' => 'LAL', 'home_score' => 98, 'home_logo' => '', 'away_code' => 'BOS', 'away_score' => 94, 'away_logo' => '' ],
+            [ 'sport' => 'mlb', 'is_live' => true,  'status' => 'LIVE',     'detail' => 'Top 7th',    'possession' => '1 Out • 1 on',   'home_code' => 'NYY', 'home_score' => 5,  'home_logo' => '', 'away_code' => 'BOS', 'away_score' => 3,  'away_logo' => '' ],
+            [ 'sport' => 'nhl', 'is_live' => false, 'status' => 'PERIOD 2', 'detail' => '2nd 08:45', 'possession' => 'SOG: 19 - 28',  'home_code' => 'TOR', 'home_score' => 2,  'home_logo' => '', 'away_code' => 'BOS', 'away_score' => 4,  'away_logo' => '' ],
+        ];
+    } else {
+        set_transient( $transient_key, $matches, 60 );
+    }
+
+    return $matches;
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * 2. NFL STANDINGS API (Cached for 1 hour)
+ * --------------------------------------------------------------------------
+ */
+function sportlixa_get_nfl_standings() {
+    $transient_key = 'sportlixa_cached_nfl_standings';
+    $cached = get_transient( $transient_key );
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $url = 'https://site.api.espn.com/apis/v2/sports/football/nfl/standings';
+    $response = wp_remote_get( $url, [ 'timeout' => 5 ] );
+
+    $standings = [ 'afc' => [], 'nfc' => [] ];
+
+    if ( ! is_wp_error( $response ) ) {
+        $body = json_decode( wp_remote_retrieve_body( $response ), true );
+        $children = $body['children'] ?? [];
+
+        foreach ( $children as $conference ) {
+            $conf_name = strtolower( $conference['name'] ?? '' );
+            $target = strpos( $conf_name, 'american' ) !== false ? 'afc' : ( strpos( $conf_name, 'national' ) !== false ? 'nfc' : null );
+            if ( ! $target ) continue;
+
+            $entries = [];
+            foreach ( $conference['standings']['entries'] ?? [] as $entry ) {
+                $team = $entry['team']['displayName'] ?? 'Team';
+                $stats_map = [];
+                foreach ( $entry['stats'] ?? [] as $s ) {
+                    $stats_map[ $s['name'] ?? '' ] = $s['displayValue'] ?? '-';
+                }
+
+                $entries[] = [
+                    'team'   => $team,
+                    'w'      => $stats_map['wins'] ?? '0',
+                    'l'      => $stats_map['losses'] ?? '0',
+                    'pct'    => $stats_map['winPercent'] ?? '.000',
+                    'div'    => $stats_map['divisionWinPercent'] ?? '0-0',
+                    'streak' => $stats_map['streak'] ?? '1W',
+                ];
+            }
+            $standings[ $target ] = array_slice( $entries, 0, 5 );
+        }
+    }
+
+    if ( empty( $standings['afc'] ) ) {
+        $standings['afc'] = [
+            [ 'team' => 'Kansas City Chiefs',   'w' => '4', 'l' => '0', 'pct' => '1.000', 'div' => '2-0', 'streak' => '4W' ],
+            [ 'team' => 'Buffalo Bills',        'w' => '3', 'l' => '1', 'pct' => '.750',  'div' => '1-0', 'streak' => '1W' ],
+            [ 'team' => 'Baltimore Ravens',     'w' => '3', 'l' => '1', 'pct' => '.750',  'div' => '2-0', 'streak' => '2W' ],
+            [ 'team' => 'Jacksonville Jaguars', 'w' => '3', 'l' => '1', 'pct' => '.750',  'div' => '1-1', 'streak' => '2W' ],
+            [ 'team' => 'Las Vegas Raiders',    'w' => '3', 'l' => '1', 'pct' => '.750',  'div' => '1-1', 'streak' => '1L' ],
+        ];
+    }
+    if ( empty( $standings['nfc'] ) ) {
+        $standings['nfc'] = [
+            [ 'team' => 'Minnesota Vikings',     'w' => '4', 'l' => '0', 'pct' => '1.000', 'div' => '1-0', 'streak' => '4W' ],
+            [ 'team' => 'Detroit Lions',         'w' => '3', 'l' => '1', 'pct' => '.750',  'div' => '1-1', 'streak' => '2W' ],
+            [ 'team' => 'Washington Commanders', 'w' => '3', 'l' => '1', 'pct' => '.750',  'div' => '1-0', 'streak' => '3W' ],
+            [ 'team' => 'Seattle Seahawks',      'w' => '3', 'l' => '1', 'pct' => '.750',  'div' => '0-0', 'streak' => '1L' ],
+            [ 'team' => 'Philadelphia Eagles',   'w' => '2', 'l' => '2', 'pct' => '.500',  'div' => '0-0', 'streak' => '1L' ],
+        ];
+    }
+
+    set_transient( $transient_key, $standings, 3600 );
+    return $standings;
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * 3. HELPER: RENDER OFFICIAL LOGO WITH SVG FALLBACK
+ * --------------------------------------------------------------------------
+ */
+function sportlixa_render_team_crest_svg( $code, $logo_url = '' ) {
+    if ( ! empty( $logo_url ) ) {
+        echo '<img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $code ) . '" class="devnahian-sportlixa-team-crest-svg" style="object-fit:contain;" loading="lazy">';
+        return;
+    }
+
+    $code = strtoupper( trim( $code ) );
+    switch ( $code ) {
+        case 'KC':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <polygon points="4,20 34,6 38,20 34,34" fill="#E31837" stroke="#FFB81C" stroke-width="2"/>
+              <text x="20" y="24" fill="#fff" font-size="10" font-weight="900" text-anchor="middle">KC</text>
+            </svg>
+            <?php
+            break;
+        case 'BUF':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <rect x="4" y="8" width="32" height="24" rx="4" fill="#00338D"/>
+              <line x1="6" y1="20" x2="34" y2="20" stroke="#C60C30" stroke-width="3"/>
+              <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">BUF</text>
+            </svg>
+            <?php
+            break;
+        case 'LAL':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#552583" stroke="#FDB927" stroke-width="2"/>
+              <text x="20" y="24" fill="#FDB927" font-size="9" font-weight="900" text-anchor="middle">LAL</text>
+            </svg>
+            <?php
+            break;
+        case 'BOS':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#007A33" stroke="#BA9653" stroke-width="2"/>
+              <text x="20" y="24" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">BOS</text>
+            </svg>
+            <?php
+            break;
+        case 'NYY':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#003087"/>
+              <text x="20" y="24" fill="#ffffff" font-size="9" font-weight="900" text-anchor="middle">NYY</text>
+            </svg>
+            <?php
+            break;
+        case 'TOR':
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <polygon points="20,4 25,14 36,14 27,22 31,34 20,26 9,34 13,22 4,14 15,14" fill="#00205B"/>
+              <text x="20" y="22" fill="#fff" font-size="7" font-weight="900" text-anchor="middle">TOR</text>
+            </svg>
+            <?php
+            break;
+        default:
+            ?>
+            <svg class="devnahian-sportlixa-team-crest-svg" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="16" fill="#141822" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+              <text x="20" y="24" fill="#fff" font-size="8.5" font-weight="900" text-anchor="middle"><?php echo esc_html( substr( $code, 0, 3 ) ); ?></text>
+            </svg>
+            <?php
+            break;
+    }
+}
+
+$live_games_data = sportlixa_get_espn_live_scores();
+$nfl_standings   = sportlixa_get_nfl_standings();
+
+$pill_counts = [ 'all' => count( $live_games_data ), 'nfl' => 0, 'nba' => 0, 'mlb' => 0, 'nhl' => 0 ];
+foreach ( $live_games_data as $lg ) {
+    $sp = strtolower( $lg['sport'] );
+    if ( isset( $pill_counts[ $sp ] ) ) {
+        $pill_counts[ $sp ]++;
+    }
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ESPN UPCOMING MATCHUPS & PREDICTIONS API (Cached for 10 mins)
+ * --------------------------------------------------------------------------
+ */
+function sportlixa_get_espn_predictions() {
+    $transient_key = 'sportlixa_cached_predictions';
+    $cached = get_transient( $transient_key );
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $leagues = [
+        'nfl' => 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
+        'nba' => 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+        'mlb' => 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard',
+        'nhl' => 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard',
+    ];
+
+    $predictions = [];
+
+    foreach ( $leagues as $sport => $url ) {
+        $response = wp_remote_get( $url, [
+            'timeout'   => 8,
+            'sslverify' => false,
+            'headers'   => [ 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' ]
+        ] );
+
+        if ( is_wp_error( $response ) ) {
+            continue;
+        }
+
+        $data   = json_decode( wp_remote_retrieve_body( $response ), true );
+        $events = $data['events'] ?? [];
+
+        foreach ( $events as $event ) {
+            $competition = $event['competitions'][0] ?? [];
+            $status_type = $event['status']['type'] ?? [];
+
+            // Focus on scheduled or upcoming games (pre-game or active)
+            $is_pre = ( $status_type['state'] ?? '' ) === 'pre';
+            $competitors = $competition['competitors'] ?? [];
+
+            $home = [ 'id' => '', 'code' => 'HOM', 'name' => 'Home Team', 'record' => '', 'logo' => '', 'win_pct' => 50 ];
+            $away = [ 'id' => '', 'code' => 'AWY', 'name' => 'Away Team', 'record' => '', 'logo' => '', 'win_pct' => 50 ];
+
+            foreach ( $competitors as $c ) {
+                $team_info = [
+                    'id'     => $c['id'] ?? '',
+                    'code'   => $c['team']['abbreviation'] ?? 'TBD',
+                    'name'   => $c['team']['shortDisplayName'] ?? $c['team']['name'] ?? 'Team',
+                    'record' => $c['records'][0]['summary'] ?? '',
+                    'logo'   => $c['team']['logo'] ?? '',
+                    'win_pct'=> 50,
+                ];
+
+                if ( ( $c['homeAway'] ?? '' ) === 'home' ) {
+                    $home = $team_info;
+                } else {
+                    $away = $team_info;
+                }
+            }
+
+            // Extract ESPN Predictor Win Probabilities if available
+            $predictor = $competition['predictor'] ?? [];
+            if ( ! empty( $predictor['homeTeam']['gameProjection'] ) ) {
+                $home['win_pct'] = round( (float) $predictor['homeTeam']['gameProjection'] );
+                $away['win_pct'] = 100 - $home['win_pct'];
+            }
+
+            // Extract Odds & Spread
+            $odds_item = $competition['odds'][0] ?? [];
+            $spread    = $odds_item['details'] ?? 'EVEN';
+            $over_under= ! empty( $odds_item['overUnder'] ) ? 'O/U ' . $odds_item['overUnder'] : 'O/U 46.5';
+            $venue     = $competition['venue']['fullName'] ?? 'Stadium';
+            $broadcast = $competition['broadcasts'][0]['names'][0] ?? 'TV';
+            $game_date = ! empty( $event['date'] ) ? date( 'D, M j • g:i A', strtotime( $event['date'] ) ) : 'TBD';
+
+            $predictions[] = [
+                'id'         => $event['id'] ?? uniqid(),
+                'sport'      => $sport,
+                'is_pre'     => $is_pre,
+                'game_date'  => $game_date,
+                'venue'      => $venue,
+                'broadcast'  => $broadcast,
+                'spread'     => $spread,
+                'over_under' => $over_under,
+                'home'       => $home,
+                'away'       => $away,
+            ];
+        }
+    }
+
+    // Cache results for 10 minutes (600 seconds)
+    set_transient( $transient_key, $predictions, 600 );
+    return $predictions;
+}
