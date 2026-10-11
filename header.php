@@ -88,13 +88,16 @@ if ( ! defined( 'ABSPATH' ) ) {
             the_custom_logo();
         else :
             ?>
-            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
-              <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.png' ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="devnahian-sportlixa-brand-title" style="font-size:20px;">
+              <span class="part-sport">SPORT</span><span class="part-lixa">LIXA</span>
             </a>
         <?php endif; ?>
       </div>
       <button type="button" class="devnahian-sportlixa-drawer-close-btn" id="devnahian-sportlixa-drawerCloseBtn" aria-label="<?php esc_attr_e( 'Close Navigation', 'sportlixa' ); ?>">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
     </div>
 
@@ -143,7 +146,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           <span><?php esc_html_e( 'Home', 'sportlixa' ); ?></span>
         </a>
         <a href="<?php echo esc_url( home_url( '/#scores' ) ); ?>" class="devnahian-sportlixa-bottom-bar-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
           <span><?php esc_html_e( 'Scores', 'sportlixa' ); ?></span>
         </a>
         <a href="<?php echo esc_url( home_url( '/#nfl-standings' ) ); ?>" class="devnahian-sportlixa-bottom-bar-item">
@@ -175,7 +178,9 @@ if ( ! defined( 'ABSPATH' ) ) {
               the_custom_logo();
           else :
               ?>
-              <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.png' ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+              <div class="devnahian-sportlixa-brand-title">
+                <span class="part-sport">SPORT</span><span class="part-lixa">LIXA</span>
+              </div>
           <?php endif; ?>
         </a>
 
@@ -234,7 +239,6 @@ if ( ! defined( 'ABSPATH' ) ) {
               'walker'         => new Sportlixa_League_Chips_Walker(),
           ] );
       else :
-          // Automatic category fallback
           $cats = get_categories( [ 'number' => 8, 'orderby' => 'count', 'order' => 'DESC' ] );
           echo '<a href="' . esc_url( home_url( '/' ) ) . '" class="devnahian-sportlixa-league-chip ' . ( is_home() || is_front_page() ? 'active' : '' ) . '">' . esc_html__( 'All', 'sportlixa' ) . '</a>';
           foreach ( $cats as $cat ) {
