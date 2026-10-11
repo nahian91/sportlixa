@@ -15,10 +15,10 @@ while ( have_posts() ) :
     $read_time  = max( 1, ceil( $post_words / 200 ) );
 
     // Category data
-    $categories = get_the_category();
+    $categories  = get_the_category();
     $primary_cat = ! empty( $categories ) ? $categories[0] : null;
 
-    // Featured image data
+    // Featured image & author data
     $thumb_id      = get_post_thumbnail_id();
     $thumb_caption = wp_get_attachment_caption( $thumb_id );
     $thumb_alt     = get_post_meta( $thumb_id, '_wp_attachment_image_alt', true );
@@ -29,10 +29,10 @@ while ( have_posts() ) :
   <main class="devnahian-sportlixa-container">
 
     <!-- ==========================================================================
-       ARTICLE HEADER & BREADCRUMBS
+       ARTICLE HEADER & NON-STICKY BREADCRUMBS
        ========================================================================== -->
-    <header class="devnahian-sportlixa-article-header">
-      <nav class="devnahian-sportlixa-breadcrumbs" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sportlixa' ); ?>">
+    <header class="devnahian-sportlixa-article-header" style="position: static !important;">
+      <nav class="devnahian-sportlixa-breadcrumbs" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sportlixa' ); ?>" style="position: static !important; top: auto !important;">
         <a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'sportlixa' ); ?></a>
         <span>/</span>
         <?php if ( $primary_cat ) : ?>
@@ -101,11 +101,11 @@ while ( have_posts() ) :
     </header>
 
     <!-- ==========================================================================
-       MAIN ARTICLE CONTENT & SIDEBAR GRID
+       MAIN CONTENT & NON-STICKY EDITORIAL SIDEBAR
        ========================================================================== -->
     <div class="devnahian-sportlixa-post-layout">
-      <!-- Left Column: Editorial Body -->
-      <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+      <!-- Left Column: Article Body -->
+      <article id="post-<?php the_ID(); ?>" <?php post_class( 'devnahian-sportlixa-post-main' ); ?>>
         
         <?php if ( has_post_thumbnail() ) : ?>
           <figure class="devnahian-sportlixa-featured-media-box">
@@ -125,7 +125,7 @@ while ( have_posts() ) :
         <?php endif; ?>
 
         <!-- Rich Gutenberg Editorial Body -->
-        <div class="devnahian-sportlixa-editorial-body">
+        <div class="devnahian-sportlixa-editorial-body entry-content">
           <?php
           the_content();
 
@@ -182,125 +182,119 @@ while ( have_posts() ) :
 
       </article>
 
-      <!-- Right Column: Sidebar -->
-      <aside class="devnahian-sportlixa-post-sidebar" aria-label="<?php esc_attr_e( 'Article Sidebar', 'sportlixa' ); ?>">
+      <!-- Right Column: Sidebar (Non-Sticky, Replaced with Latest Posts & Categories) -->
+      <aside class="devnahian-sportlixa-post-sidebar devnahian-sportlixa-editorial-sidebar" aria-label="<?php esc_attr_e( 'Article Sidebar', 'sportlixa' ); ?>">
 
-        <!-- Live Matchup Marquee -->
-        <div class="devnahian-sportlixa-marquee-game-card">
-          <div class="devnahian-sportlixa-marquee-header">
-            <span class="devnahian-sportlixa-marquee-live-tag"><?php esc_html_e( 'NEXT BIG MATCHUP', 'sportlixa' ); ?></span>
-            <span>SUN 4:25 PM • CBS</span>
-          </div>
-          <div class="devnahian-sportlixa-marquee-teams">
-            <div class="devnahian-sportlixa-marquee-team">
-              <span class="abbr">KC</span>
-              <span class="rec">(4-0)</span>
-            </div>
-            <span class="devnahian-sportlixa-marquee-vs">VS</span>
-            <div class="devnahian-sportlixa-marquee-team">
-              <span class="abbr">BUF</span>
-              <span class="rec">(3-1)</span>
-            </div>
-          </div>
-          <div class="devnahian-sportlixa-marquee-odds">
-            <span>Spread: <strong>KC -2.5</strong></span>
-            <span>Total: <strong>O/U 48.5</strong></span>
-          </div>
-          <a href="<?php echo esc_url( home_url( '/#scores' ) ); ?>" class="devnahian-sportlixa-btn-marquee-action">
-            <?php esc_html_e( 'MATCHUP GAMECAST &rarr;', 'sportlixa' ); ?>
-          </a>
-        </div>
+        <?php if ( is_active_sidebar( 'sportlixa-post-sidebar' ) ) : ?>
+          <?php dynamic_sidebar( 'sportlixa-post-sidebar' ); ?>
+        <?php else : ?>
 
-        <!-- NFL Stat Leaders (Quick Widget) -->
-        <div class="devnahian-sportlixa-nfl-leaders-box">
-          <div class="devnahian-sportlixa-section-title" style="margin-bottom:0">
-            <div class="devnahian-sportlixa-title-left" style="font-size:12.5px;"><?php esc_html_e( 'NFL STAT LEADERS', 'sportlixa' ); ?></div>
-          </div>
+          <!-- 1. LATEST POSTS WIDGET -->
+          <div class="devnahian-sportlixa-sidebar-card">
+            <div class="devnahian-sportlixa-section-title" style="margin-bottom: 1rem;">
+              <div class="devnahian-sportlixa-title-left" style="font-size: 0.85rem;"><?php esc_html_e( 'LATEST STORIES', 'sportlixa' ); ?></div>
+            </div>
 
-          <div class="devnahian-sportlixa-leader-row">
-            <div class="devnahian-sportlixa-leader-player-wrap">
-              <div class="devnahian-sportlixa-leader-avatar">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Patrick_Mahomes_gets_ready_to_snap_the_ball.jpg/300px-Patrick_Mahomes_gets_ready_to_snap_the_ball.jpg" alt="Patrick Mahomes" loading="lazy">
-              </div>
-              <div>
-                <div class="devnahian-sportlixa-leader-player-name">P. Mahomes</div>
-                <div class="devnahian-sportlixa-leader-cat">Pass Yds • KC</div>
-              </div>
-            </div>
-            <div class="devnahian-sportlixa-leader-stat">
-              <div class="devnahian-sportlixa-leader-value">1,315</div>
-              <div class="devnahian-sportlixa-leader-unit">11 TD</div>
-            </div>
-          </div>
+            <div class="devnahian-sportlixa-sidebar-posts-list">
+              <?php
+              $latest_sidebar_posts = new WP_Query( [
+                  'posts_per_page'      => 4,
+                  'post__not_in'        => [ get_the_ID() ],
+                  'post_status'         => 'publish',
+                  'ignore_sticky_posts' => 1,
+              ] );
 
-          <div class="devnahian-sportlixa-leader-row">
-            <div class="devnahian-sportlixa-leader-player-wrap">
-              <div class="devnahian-sportlixa-leader-avatar">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Josh_Allen_SEPT2021_%28cropped%29.jpg/300px-Josh_Allen_SEPT2021_%28cropped%29.jpg" alt="Josh Allen" loading="lazy">
-              </div>
-              <div>
-                <div class="devnahian-sportlixa-leader-player-name">J. Allen</div>
-                <div class="devnahian-sportlixa-leader-cat">Total QBR • BUF</div>
-              </div>
-            </div>
-            <div class="devnahian-sportlixa-leader-stat">
-              <div class="devnahian-sportlixa-leader-value">84.2</div>
-              <div class="devnahian-sportlixa-leader-unit">Rating</div>
+              if ( $latest_sidebar_posts->have_posts() ) :
+                  while ( $latest_sidebar_posts->have_posts() ) :
+                      $latest_sidebar_posts->the_post();
+                      $side_thumb = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'thumbnail' ) : 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=150&q=80';
+                      $side_words = str_word_count( strip_tags( get_the_content() ) );
+                      $side_read  = max( 1, ceil( $side_words / 200 ) );
+                      ?>
+                      <article class="devnahian-sportlixa-side-post-row">
+                        <a href="<?php the_permalink(); ?>" class="devnahian-sportlixa-side-post-thumb">
+                          <img src="<?php echo esc_url( $side_thumb ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>" loading="lazy">
+                        </a>
+                        <div class="devnahian-sportlixa-side-post-info">
+                          <h4 class="devnahian-sportlixa-side-post-title">
+                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                          </h4>
+                          <span class="devnahian-sportlixa-meta-time">
+                            <?php echo esc_html( get_the_date( 'M j, Y' ) ); ?> • <?php printf( esc_html__( '%d min read', 'sportlixa' ), $side_read ); ?>
+                          </span>
+                        </div>
+                      </article>
+                      <?php
+                  endwhile;
+                  wp_reset_postdata();
+              endif;
+              ?>
             </div>
           </div>
 
-          <div class="devnahian-sportlixa-leader-row">
-            <div class="devnahian-sportlixa-leader-player-wrap">
-              <div class="devnahian-sportlixa-leader-avatar">
-                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Kenneth_Walker_III_being_interviewed_by_Time2Football_2026_(cropped).png" alt="Kenneth Walker" loading="lazy">
-              </div>
-              <div>
-                <div class="devnahian-sportlixa-leader-player-name">K. Walker III</div>
-                <div class="devnahian-sportlixa-leader-cat">Rush Yds • SEA</div>
-              </div>
+          <!-- 2. LEAGUE CATEGORIES WIDGET -->
+          <div class="devnahian-sportlixa-sidebar-card">
+            <div class="devnahian-sportlixa-section-title" style="margin-bottom: 1rem;">
+              <div class="devnahian-sportlixa-title-left" style="font-size: 0.85rem;"><?php esc_html_e( 'EXPLORE LEAGUES', 'sportlixa' ); ?></div>
             </div>
-            <div class="devnahian-sportlixa-leader-stat">
-              <div class="devnahian-sportlixa-leader-value">537</div>
-              <div class="devnahian-sportlixa-leader-unit">6 TD</div>
+
+            <ul class="devnahian-sportlixa-categories-list">
+              <?php
+              $all_categories = get_categories( [
+                  'orderby'    => 'count',
+                  'order'      => 'DESC',
+                  'number'     => 6,
+                  'hide_empty' => true,
+              ] );
+
+              foreach ( $all_categories as $cat ) :
+                  ?>
+                  <li class="devnahian-sportlixa-cat-item">
+                    <a href="<?php echo esc_url( get_category_link( $cat->term_id ) ); ?>">
+                      <span class="cat-name"><?php echo esc_html( $cat->name ); ?></span>
+                      <span class="cat-count"><?php echo esc_html( $cat->count ); ?></span>
+                    </a>
+                  </li>
+                  <?php
+              endforeach;
+              ?>
+            </ul>
+          </div>
+
+          <!-- 3. POPULAR TAGS WIDGET -->
+          <div class="devnahian-sportlixa-sidebar-card">
+            <div class="devnahian-sportlixa-section-title" style="margin-bottom: 1rem;">
+              <div class="devnahian-sportlixa-title-left" style="font-size: 0.85rem;"><?php esc_html_e( 'POPULAR TOPICS', 'sportlixa' ); ?></div>
+            </div>
+
+            <div class="devnahian-sportlixa-tags-cloud">
+              <?php
+              $popular_tags = get_tags( [
+                  'orderby' => 'count',
+                  'order'   => 'DESC',
+                  'number'  => 8,
+              ] );
+
+              if ( ! empty( $popular_tags ) ) :
+                  foreach ( $popular_tags as $ptag ) :
+                      ?>
+                      <a href="<?php echo esc_url( get_tag_link( $ptag->term_id ) ); ?>" class="devnahian-sportlixa-tag-pill">
+                        #<?php echo esc_html( $ptag->name ); ?>
+                      </a>
+                      <?php
+                  endforeach;
+              endif;
+              ?>
             </div>
           </div>
-        </div>
 
-        <!-- Dynamic Trending Stories Query -->
-        <div class="devnahian-sportlixa-trending-box">
-          <div class="devnahian-sportlixa-trending-header"><?php esc_html_e( 'TRENDING STORIES', 'sportlixa' ); ?></div>
-          <ol class="devnahian-sportlixa-trending-list">
-            <?php
-            $trending_posts = new WP_Query( [
-                'posts_per_page'      => 4,
-                'orderby'             => 'comment_count',
-                'post__not_in'        => [ get_the_ID() ],
-                'post_status'         => 'publish',
-                'ignore_sticky_posts' => 1,
-            ] );
-
-            $rank = 1;
-            if ( $trending_posts->have_posts() ) :
-                while ( $trending_posts->have_posts() ) :
-                    $trending_posts->the_post();
-                    ?>
-                    <li class="devnahian-sportlixa-trending-item">
-                      <span class="devnahian-sportlixa-trending-num"><?php echo esc_html( $rank++ ); ?></span>
-                      <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                    </li>
-                    <?php
-                endwhile;
-                wp_reset_postdata();
-            endif;
-            ?>
-          </ol>
-        </div>
+        <?php endif; ?>
 
       </aside>
     </div>
 
     <!-- ==========================================================================
-       RELATED STORIES (Querying Same Category, Excluding Current Post)
+       RELATED STORIES
        ========================================================================== -->
     <?php
     if ( $primary_cat ) :
@@ -346,7 +340,8 @@ while ( have_posts() ) :
                           <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
                         </h4>
                         <div class="devnahian-sportlixa-meta-time">
-                          <?php echo esc_html( get_the_date( 'M j, Y' ) ); ?> • <?php printf( esc_html__( '%d min read', 'sportlixa' ), $rel_read ); ?>
+                          <span><?php echo esc_html( get_the_date( 'M j, Y' ) ); ?></span> •
+                          <span><?php printf( esc_html__( '%d min read', 'sportlixa' ), $rel_read ); ?></span>
                         </div>
                       </div>
                     </article>

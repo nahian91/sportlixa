@@ -10102,3 +10102,401 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   SPORTLIXA - RIGHT SIDEBAR (NON-STICKY & CLEAN)
+   ========================================================================== */
+.devnahian-sportlixa-post-layout {
+  display: grid;
+  grid-template-columns: 2.3fr 1fr;
+  gap: 2.25rem;
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.devnahian-sportlixa-post-sidebar {
+  position: static !important;
+  top: auto !important;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Sidebar Wrapper Card */
+.devnahian-sportlixa-sidebar-card {
+  background: var(--sl-surface, #121721);
+  border: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--sl-radius-md, 12px);
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.devnahian-sportlixa-sidebar-card .devnahian-sportlixa-section-title {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+}
+
+/* Latest Posts List Widget */
+.devnahian-sportlixa-sidebar-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.devnahian-sportlixa-side-post-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.devnahian-sportlixa-side-post-thumb {
+  width: 76px;
+  height: 64px;
+  border-radius: var(--sl-radius-sm, 6px);
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: var(--sl-bg, #0b0e14);
+  border: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+}
+
+.devnahian-sportlixa-side-post-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.devnahian-sportlixa-side-post-row:hover .devnahian-sportlixa-side-post-thumb img {
+  transform: scale(1.08);
+}
+
+.devnahian-sportlixa-side-post-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.devnahian-sportlixa-side-post-title {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.devnahian-sportlixa-side-post-title a {
+  color: var(--sl-text-primary, #f1f5f9);
+  transition: color 0.2s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.devnahian-sportlixa-side-post-title a:hover {
+  color: var(--sl-volt, #ccff00);
+}
+
+/* Categories List Widget */
+.devnahian-sportlixa-categories-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.devnahian-sportlixa-cat-item a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  border-radius: var(--sl-radius-sm, 6px);
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--sl-text-secondary, #94a3b8);
+  transition: all 0.2s ease;
+}
+
+.devnahian-sportlixa-cat-item a:hover {
+  background: rgba(204, 255, 0, 0.06);
+  border-color: rgba(204, 255, 0, 0.25);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.devnahian-sportlixa-cat-item .cat-count {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--sl-volt, #ccff00);
+  background: rgba(204, 255, 0, 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+/* Tag Cloud Widget */
+.devnahian-sportlixa-tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.devnahian-sportlixa-tag-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--sl-text-secondary, #94a3b8);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--sl-radius-sm, 6px);
+  transition: all 0.2s ease;
+}
+
+.devnahian-sportlixa-tag-pill:hover {
+  background: var(--sl-volt, #ccff00);
+  color: #000000;
+  border-color: var(--sl-volt, #ccff00);
+}
+
+
+/* ==========================================================================
+   SPORTLIXA - WORDPRESS COMMENT FORM & DISCUSSION LIST
+   ========================================================================== */
+#comments {
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+}
+
+.comments-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin-bottom: 2rem;
+}
+
+/* Existing Comments List */
+.comment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.comment-list .comment {
+  background: var(--sl-surface, #121721);
+  border: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--sl-radius-md, 12px);
+  padding: 1.5rem;
+}
+
+.comment-list .children {
+  list-style: none;
+  padding-left: 1.5rem;
+  margin-top: 1.25rem;
+  border-left: 2px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.comment-body {
+  position: relative;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.comment-meta .avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--sl-volt, #ccff00);
+}
+
+.comment-author .fn {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.comment-metadata a {
+  color: var(--sl-text-muted, #64748b);
+  font-size: 0.75rem;
+}
+
+.comment-content p {
+  color: var(--sl-text-secondary, #94a3b8);
+  font-size: 0.925rem;
+  line-height: 1.6;
+  margin: 0 0 0.85rem;
+}
+
+.reply a {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--sl-volt, #ccff00);
+  background: rgba(204, 255, 0, 0.1);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--sl-radius-sm, 6px);
+  transition: all 0.2s ease;
+}
+
+.reply a:hover {
+  background: var(--sl-volt, #ccff00);
+  color: #000000;
+}
+
+/* Comment Form Card */
+#respond {
+  background: var(--sl-surface, #121721);
+  border: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--sl-radius-md, 12px);
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.comment-reply-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#cancel-comment-reply-link {
+  font-size: 0.75rem;
+  color: #ff2a4b;
+  font-weight: 700;
+}
+
+.comment-notes {
+  color: var(--sl-text-muted, #64748b);
+  font-size: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Inputs & Textareas */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.comment-form label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sl-text-secondary, #94a3b8);
+  margin-bottom: 0.4rem;
+}
+
+.comment-form input[type="text"],
+.comment-form input[type="email"],
+.comment-form input[type="url"],
+.comment-form textarea {
+  width: 100%;
+  background: #06080b;
+  border: 1px solid var(--sl-border, rgba(255, 255, 255, 0.12));
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border-radius: var(--sl-radius-sm, 6px);
+  padding: 0.85rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-form textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.comment-form input:focus,
+.comment-form textarea:focus {
+  outline: none;
+  border-color: var(--sl-volt, #ccff00);
+  box-shadow: 0 0 0 2px rgba(204, 255, 0, 0.15);
+}
+
+/* Responsive 3-Column Author Fields */
+.comment-form-author,
+.comment-form-email,
+.comment-form-url {
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .comment-form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .comment-form-comment,
+  .comment-form-cookies-consent,
+  .form-submit,
+  .comment-notes {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Consent Checkbox */
+.comment-form-cookies-consent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--sl-text-muted, #64748b);
+  margin-top: 0.25rem;
+}
+
+.comment-form-cookies-consent input[type="checkbox"] {
+  accent-color: var(--sl-volt, #ccff00);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Submit Button */
+.form-submit {
+  margin: 0;
+}
+
+.form-submit input[type="submit"] {
+  background: var(--sl-volt, #ccff00);
+  color: #000000;
+  font-size: 0.825rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.85rem 2rem;
+  border: none;
+  border-radius: var(--sl-radius-sm, 6px);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.form-submit input[type="submit"]:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .devnahian-sportlixa-post-layout {
+    grid-template-columns: 1fr;
+  }
+}
