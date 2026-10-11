@@ -89,7 +89,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         else :
             ?>
             <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="devnahian-sportlixa-brand-title" style="font-size:20px;">
-              <span class="part-sport">SPORT</span><span class="part-lixa">LIXA</span>
+              <img src="assets/img/logo.png" alt="">
             </a>
         <?php endif; ?>
       </div>
@@ -179,7 +179,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           else :
               ?>
               <div class="devnahian-sportlixa-brand-title">
-                <span class="part-sport">SPORT</span><span class="part-lixa">LIXA</span>
+                <img src="<?php echo get_template_directory_uri();?>/assets/img/logo.png" alt="">
               </div>
           <?php endif; ?>
         </a>
