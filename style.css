@@ -13,3 +13,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: sportlixa
 Tags: sports, e-commerce, news, blog, custom-header, full-width-template, grid-layout, dark-mode, responsive-layout
 */
+
+ol, .devnahian-sportlixa-footer-links-list{
+    padding: 0;
+}

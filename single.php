@@ -24,12 +24,116 @@ while ( have_posts() ) :
     $thumb_alt     = get_post_meta( $thumb_id, '_wp_attachment_image_alt', true );
     $author_id     = get_the_author_meta( 'ID' );
     $author_bio    = get_the_author_meta( 'description' );
+
+    // Social share data
+    $share_url   = rawurlencode( get_permalink() );
+    $share_title = rawurlencode( html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' ) );
     ?>
+
+  <!-- Scoped Social Share Icons Styling Only -->
+  <style>
+    .devnahian-sportlixa-share-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .devnahian-sportlixa-share-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--sl-text-muted, #64748b);
+      margin-right: 0.25rem;
+    }
+
+    .devnahian-sportlixa-share-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--sl-surface, #121721);
+      border: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
+      color: var(--sl-text-secondary, #94a3b8);
+      text-decoration: none;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+    }
+
+    .devnahian-sportlixa-share-btn svg {
+      display: block;
+      transition: transform 0.2s ease;
+    }
+
+    .devnahian-sportlixa-share-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .devnahian-sportlixa-share-btn:hover svg {
+      transform: scale(1.1);
+    }
+
+    /* Platform Hover Palette */
+    .devnahian-sportlixa-share-btn.share-x:hover {
+      background: #000000;
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .devnahian-sportlixa-share-btn.share-fb:hover {
+      background: #1877f2;
+      color: #ffffff;
+      border-color: #1877f2;
+    }
+
+    .devnahian-sportlixa-share-btn.share-wa:hover {
+      background: #25d366;
+      color: #ffffff;
+      border-color: #25d366;
+    }
+
+    .devnahian-sportlixa-share-btn.share-in:hover {
+      background: #0a66c2;
+      color: #ffffff;
+      border-color: #0a66c2;
+    }
+
+    .devnahian-sportlixa-share-btn.share-copy:hover {
+      background: rgba(204, 255, 0, 0.1);
+      color: var(--sl-volt, #ccff00);
+      border-color: var(--sl-volt, #ccff00);
+    }
+
+    .devnahian-sportlixa-share-btn.share-save:hover,
+    .devnahian-sportlixa-share-btn.share-save.active,
+    .devnahian-sportlixa-share-btn.share-save.is-bookmarked {
+      background: var(--sl-volt, #ccff00);
+      color: #000000;
+      border-color: var(--sl-volt, #ccff00);
+    }
+
+    .devnahian-sportlixa-share-btn.share-save.active svg,
+    .devnahian-sportlixa-share-btn.share-save.is-bookmarked svg {
+      fill: #000000;
+    }
+
+    @media (max-width: 640px) {
+      .devnahian-sportlixa-share-bar {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  </style>
 
   <main class="devnahian-sportlixa-container">
 
     <!-- ==========================================================================
-       ARTICLE HEADER & NON-STICKY BREADCRUMBS
+       ARTICLE HEADER & BREADCRUMBS
        ========================================================================== -->
     <header class="devnahian-sportlixa-article-header" style="position: static !important;">
       <nav class="devnahian-sportlixa-breadcrumbs" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sportlixa' ); ?>" style="position: static !important; top: auto !important;">
@@ -83,25 +187,87 @@ while ( have_posts() ) :
           </div>
         </div>
 
-        <div class="devnahian-sportlixa-share-bar">
-          <button type="button" class="devnahian-sportlixa-share-btn" onclick="shareArticle('<?php echo esc_js( get_the_title() ); ?>')">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            <?php esc_html_e( 'Share', 'sportlixa' ); ?>
+        <!-- Social Share Bar (Popular Platforms) -->
+        <div class="devnahian-sportlixa-share-bar" aria-label="<?php esc_attr_e( 'Share this article', 'sportlixa' ); ?>">
+          <span class="devnahian-sportlixa-share-label"><?php esc_html_e( 'Share:', 'sportlixa' ); ?></span>
+
+          <!-- X / Twitter -->
+          <a href="https://twitter.com/intent/tweet?url=<?php echo $share_url; ?>&amp;text=<?php echo $share_title; ?>" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="devnahian-sportlixa-share-btn share-x" 
+             aria-label="<?php esc_attr_e( 'Share on X', 'sportlixa' ); ?>"
+             title="<?php esc_attr_e( 'Share on X', 'sportlixa' ); ?>">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+
+          <!-- Facebook -->
+          <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $share_url; ?>" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="devnahian-sportlixa-share-btn share-fb" 
+             aria-label="<?php esc_attr_e( 'Share on Facebook', 'sportlixa' ); ?>"
+             title="<?php esc_attr_e( 'Share on Facebook', 'sportlixa' ); ?>">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+
+          <!-- WhatsApp -->
+          <a href="https://api.whatsapp.com/send?text=<?php echo $share_title . '%20' . $share_url; ?>" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="devnahian-sportlixa-share-btn share-wa" 
+             aria-label="<?php esc_attr_e( 'Share via WhatsApp', 'sportlixa' ); ?>"
+             title="<?php esc_attr_e( 'Share via WhatsApp', 'sportlixa' ); ?>">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            </svg>
+          </a>
+
+          <!-- LinkedIn -->
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo $share_url; ?>" 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             class="devnahian-sportlixa-share-btn share-in" 
+             aria-label="<?php esc_attr_e( 'Share on LinkedIn', 'sportlixa' ); ?>"
+             title="<?php esc_attr_e( 'Share on LinkedIn', 'sportlixa' ); ?>">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </a>
+
+          <!-- Copy Link -->
+          <button type="button" 
+                  class="devnahian-sportlixa-share-btn share-copy" 
+                  onclick="shareArticle('<?php echo esc_js( get_the_title() ); ?>')" 
+                  aria-label="<?php esc_attr_e( 'Copy article link', 'sportlixa' ); ?>"
+                  title="<?php esc_attr_e( 'Copy link', 'sportlixa' ); ?>">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
           </button>
-          <button type="button" class="devnahian-sportlixa-share-btn" id="devnahian-sportlixa-btnBookmarkPost" onclick="togglePostBookmark(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-            <?php esc_html_e( 'Save', 'sportlixa' ); ?>
-          </button>
-          <button type="button" class="devnahian-sportlixa-share-btn" onclick="window.print()">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            <?php esc_html_e( 'Print', 'sportlixa' ); ?>
+
+          <!-- Save / Bookmark -->
+          <button type="button" 
+                  class="devnahian-sportlixa-share-btn share-save" 
+                  id="devnahian-sportlixa-btnBookmarkPost" 
+                  onclick="togglePostBookmark(this)" 
+                  aria-label="<?php esc_attr_e( 'Save to bookmarks', 'sportlixa' ); ?>"
+                  title="<?php esc_attr_e( 'Bookmark article', 'sportlixa' ); ?>">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
           </button>
         </div>
       </div>
     </header>
 
     <!-- ==========================================================================
-       MAIN CONTENT & NON-STICKY EDITORIAL SIDEBAR
+       MAIN CONTENT & EDITORIAL SIDEBAR
        ========================================================================== -->
     <div class="devnahian-sportlixa-post-layout">
       <!-- Left Column: Article Body -->
@@ -124,7 +290,7 @@ while ( have_posts() ) :
           </figure>
         <?php endif; ?>
 
-        <!-- Rich Gutenberg Editorial Body -->
+        <!-- Rich Editorial Body -->
         <div class="devnahian-sportlixa-editorial-body entry-content">
           <?php
           the_content();
@@ -150,7 +316,7 @@ while ( have_posts() ) :
             </div>
         <?php endif; ?>
 
-        <!-- Dynamic Author Bio Card -->
+        <!-- Author Bio Card -->
         <div class="devnahian-sportlixa-author-bio-card">
           <div class="devnahian-sportlixa-bio-avatar">
             <?php echo get_avatar( $author_id, 100, '', esc_attr( get_the_author() ) ); ?>
@@ -173,7 +339,7 @@ while ( have_posts() ) :
           </div>
         </div>
 
-        <!-- WordPress Comments System -->
+        <!-- WordPress Comments -->
         <?php
         if ( comments_open() || get_comments_number() ) :
             comments_template();
@@ -182,14 +348,14 @@ while ( have_posts() ) :
 
       </article>
 
-      <!-- Right Column: Sidebar (Non-Sticky, Replaced with Latest Posts & Categories) -->
+      <!-- Right Column: Sidebar -->
       <aside class="devnahian-sportlixa-post-sidebar devnahian-sportlixa-editorial-sidebar" aria-label="<?php esc_attr_e( 'Article Sidebar', 'sportlixa' ); ?>">
 
         <?php if ( is_active_sidebar( 'sportlixa-post-sidebar' ) ) : ?>
           <?php dynamic_sidebar( 'sportlixa-post-sidebar' ); ?>
         <?php else : ?>
 
-          <!-- 1. LATEST POSTS WIDGET -->
+          <!-- 1. Latest Posts Widget -->
           <div class="devnahian-sportlixa-sidebar-card">
             <div class="devnahian-sportlixa-section-title" style="margin-bottom: 1rem;">
               <div class="devnahian-sportlixa-title-left" style="font-size: 0.85rem;"><?php esc_html_e( 'LATEST STORIES', 'sportlixa' ); ?></div>
@@ -232,7 +398,7 @@ while ( have_posts() ) :
             </div>
           </div>
 
-          <!-- 2. LEAGUE CATEGORIES WIDGET -->
+          <!-- 2. League Categories Widget -->
           <div class="devnahian-sportlixa-sidebar-card">
             <div class="devnahian-sportlixa-section-title" style="margin-bottom: 1rem;">
               <div class="devnahian-sportlixa-title-left" style="font-size: 0.85rem;"><?php esc_html_e( 'EXPLORE LEAGUES', 'sportlixa' ); ?></div>
@@ -261,7 +427,7 @@ while ( have_posts() ) :
             </ul>
           </div>
 
-          <!-- 3. POPULAR TAGS WIDGET -->
+          <!-- 3. Popular Tags Widget -->
           <div class="devnahian-sportlixa-sidebar-card">
             <div class="devnahian-sportlixa-section-title" style="margin-bottom: 1rem;">
               <div class="devnahian-sportlixa-title-left" style="font-size: 0.85rem;"><?php esc_html_e( 'POPULAR TOPICS', 'sportlixa' ); ?></div>
@@ -329,11 +495,13 @@ while ( have_posts() ) :
                         <span class="devnahian-sportlixa-badge-tag devnahian-sportlixa-related-badge">
                           <?php echo esc_html( strtoupper( $primary_cat->name ) ); ?>
                         </span>
-                        <img 
-                          src="<?php echo esc_url( $rel_thumb ); ?>" 
-                          alt="<?php echo esc_attr( get_the_title() ); ?>" 
-                          loading="lazy"
-                        >
+                        <a href="<?php the_permalink(); ?>">
+                          <img 
+                            src="<?php echo esc_url( $rel_thumb ); ?>" 
+                            alt="<?php echo esc_attr( get_the_title() ); ?>" 
+                            loading="lazy"
+                          >
+                        </a>
                       </div>
                       <div class="devnahian-sportlixa-related-content">
                         <h4 class="devnahian-sportlixa-related-title">

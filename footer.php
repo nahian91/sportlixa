@@ -1,6 +1,6 @@
 <?php
 /**
- * Footer Template - Fully Dynamic Footer Menus
+ * Footer Template - Fully Dynamic Footer Menus & Settings Integration
  *
  * @package Sportlixa
  */
@@ -32,21 +32,31 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
           <p class="devnahian-sportlixa-footer-desc">
             <?php
-            $desc = get_bloginfo( 'description' );
-            echo esc_html( ! empty( $desc ) ? $desc : __( 'The definitive digital sports newsroom delivering real-time NFL analytics, verified injury reports, video breakdowns, and live scoreboards.', 'sportlixa' ) );
+            $default_desc = __( 'The definitive digital sports newsroom delivering real-time NFL analytics, verified injury reports, video breakdowns, and live scoreboards.', 'sportlixa' );
+            echo esc_html( sportlixa_get_option( 'footer_about_text', $default_desc ) );
             ?>
           </p>
           <div class="devnahian-sportlixa-social-links" style="display:flex; margin-top: 14px;">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'X Twitter', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Facebook', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.5 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z"/></svg></a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Instagram', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'YouTube', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+            <?php
+            $twitter_url   = sportlixa_get_option( 'twitter_url', '' );$facebook_url  = sportlixa_get_option( 'facebook_url', '' );
+            $instagram_url = sportlixa_get_option( 'instagram_url', '' );$youtube_url   = sportlixa_get_option( 'youtube_url', '' );
+
+            if ( ! empty( $twitter_url ) ) :
+            ?>
+              <a href="<?php echo esc_url( $twitter_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'X Twitter', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <?php endif; if ( ! empty( $facebook_url ) ) : ?>
+              <a href="<?php echo esc_url( $facebook_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Facebook', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.5 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z"/></svg></a>
+            <?php endif; if ( ! empty( $instagram_url ) ) : ?>
+              <a href="<?php echo esc_url( $instagram_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Instagram', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+            <?php endif; if ( ! empty( $youtube_url ) ) : ?>
+              <a href="<?php echo esc_url( $youtube_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'YouTube', 'sportlixa' ); ?>"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+            <?php endif; ?>
           </div>
         </div>
 
         <!-- Col 2: Dynamic Quick Links -->
         <div class="devnahian-sportlixa-footer-col">
-          <div class="devnahian-sportlixa-footer-col-title"><?php esc_html_e( 'Quick Links', 'sportlixa' ); ?></div>
+          <div class="devnahian-sportlixa-footer-col-title"><?php echo esc_html( sportlixa_get_option( 'footer_col1_title', 'Quick Links' ) ); ?></div>
           <ul class="devnahian-sportlixa-footer-links-list">
             <?php
             if ( has_nav_menu( 'footer-quick-links' ) ) :
@@ -65,7 +75,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <!-- Col 3: Dynamic More Links -->
         <div class="devnahian-sportlixa-footer-col">
-          <div class="devnahian-sportlixa-footer-col-title"><?php esc_html_e( 'More', 'sportlixa' ); ?></div>
+          <div class="devnahian-sportlixa-footer-col-title"><?php echo esc_html( sportlixa_get_option( 'footer_col2_title', 'More' ) ); ?></div>
           <ul class="devnahian-sportlixa-footer-links-list">
             <?php
             if ( has_nav_menu( 'footer-more' ) ) :
@@ -84,7 +94,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <!-- Col 4: Dynamic Legal Links -->
         <div class="devnahian-sportlixa-footer-col">
-          <div class="devnahian-sportlixa-footer-col-title"><?php esc_html_e( 'Legal', 'sportlixa' ); ?></div>
+          <div class="devnahian-sportlixa-footer-col-title"><?php echo esc_html( sportlixa_get_option( 'footer_col3_title', 'Legal' ) ); ?></div>
           <ul class="devnahian-sportlixa-footer-links-list">
             <?php
             if ( has_nav_menu( 'footer-legal' ) ) :
@@ -121,7 +131,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <div class="devnahian-sportlixa-footer-bottom">
         <div>&copy; <?php echo esc_html( date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'All rights reserved.', 'sportlixa' ); ?></div>
         <div class="devnahian-sportlixa-footer-bottom-tagline">
-          <?php esc_html_e( 'Your Sports. Your Game. Your Edge.', 'sportlixa' ); ?>
+          <?php echo esc_html( sportlixa_get_option( 'footer_tagline', 'Your Sports. Your Game. Your Edge.' ) ); ?>
         </div>
       </div>
     </div>
@@ -147,10 +157,8 @@ if ( ! defined( 'ABSPATH' ) ) {
         ] );
 
         if ( $sportlixa_search_preview->have_posts() ) :
-            while ( $sportlixa_search_preview->have_posts() ) :
-                $sportlixa_search_preview->the_post();
-                $cats = get_the_category();
-                $cat_badge = ! empty( $cats ) ? strtoupper( $cats[0]->name ) : 'SPORT';
+            while ( $sportlixa_search_preview->have_posts() ) :$sportlixa_search_preview->the_post();
+                $cats = get_the_category();$cat_badge = ! empty( $cats ) ? strtoupper( $cats[0]->name ) : 'SPORT';
                 ?>
                 <li class="devnahian-sportlixa-search-result-item" data-url="<?php the_permalink(); ?>">
                   <span><strong><a href="<?php the_permalink();?>"><?php the_title(); ?></a></strong></span>

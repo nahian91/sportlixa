@@ -14,9 +14,6 @@ get_header();
  */
 function sportlixa_get_espn_live_scores() {
     $transient_key = 'sportlixa_cached_live_scores';
-    
-    // Uncomment this line once if you need to force-clear an old cached failure:
-    // delete_transient( $transient_key );
 
     $cached = get_transient( $transient_key );
     if ( false !== $cached ) {
@@ -33,7 +30,6 @@ function sportlixa_get_espn_live_scores() {
     $matches = [];
 
     foreach ( $leagues as $sport => $url ) {
-        // Fix: sslverify => false prevents local cURL SSL cert failures
         $response = wp_remote_get( $url, [
             'timeout'   => 8,
             'sslverify' => false,
@@ -46,8 +42,8 @@ function sportlixa_get_espn_live_scores() {
             continue;
         }
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
+        $body   = wp_remote_retrieve_body( $response );
+        $data   = json_decode( $body, true );
         $events = $data['events'] ?? [];
 
         foreach ( $events as $event ) {
@@ -77,7 +73,6 @@ function sportlixa_get_espn_live_scores() {
                 }
             }
 
-            // Live situation detection
             $possession = '';
             if ( $is_live && ! empty( $situation['possession'] ) ) {
                 $poss_id = $situation['possession'];
@@ -109,7 +104,6 @@ function sportlixa_get_espn_live_scores() {
         }
     }
 
-    // Only use fallback if all endpoints failed or returned 0 events
     if ( empty( $matches ) ) {
         $matches = [
             [ 'sport' => 'nfl', 'is_live' => true,  'status' => 'LIVE',     'detail' => 'Q4 02:34',   'possession' => 'KC Poss',       'home_code' => 'KC',  'home_score' => 24, 'home_logo' => '', 'away_code' => 'BUF', 'away_score' => 17, 'away_logo' => '' ],
@@ -118,7 +112,6 @@ function sportlixa_get_espn_live_scores() {
             [ 'sport' => 'nhl', 'is_live' => false, 'status' => 'PERIOD 2', 'detail' => '2nd 08:45', 'possession' => 'SOG: 19 - 28',  'home_code' => 'TOR', 'home_score' => 2,  'home_logo' => '', 'away_code' => 'BOS', 'away_score' => 4,  'away_logo' => '' ],
         ];
     } else {
-        // Cache the real data for 60 seconds
         set_transient( $transient_key, $matches, 60 );
     }
 
@@ -289,64 +282,44 @@ foreach ( $live_games_data as $lg ) {
       <div class="devnahian-sportlixa-hero-grid">
 
         <?php
-        // Query Lead Hero Story (1 post)
-        $hero_lead_query = new WP_Query( [
-            'posts_per_page'      => 1,
-            'post_status'         => 'publish',
-            'ignore_sticky_posts' => 1,
-        ] );
+        $hero_featured_query = sportlixa_get_featured_posts( 4 );
 
-        if ( $hero_lead_query->have_posts() ) :
-            while ( $hero_lead_query->have_posts() ) : $hero_lead_query->the_post();
-                $categories = get_the_category();
-                $cat_name   = ! empty( $categories ) ? esc_html( $categories[0]->name ) : esc_html__( 'NFL', 'sportlixa' );
-                $thumb_url  = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'full' ) : 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1280&q=80';
-                $words      = str_word_count( strip_tags( get_the_content() ) );
-                $read_time  = max( 1, ceil( $words / 200 ) );
-                ?>
-                <!-- Main Lead Story -->
-                <article class="devnahian-sportlixa-hero-lead-card">
-                  <img 
-                    src="<?php echo esc_url( $thumb_url ); ?>" 
-                    alt="<?php echo esc_attr( get_the_title() ); ?>" 
-                    class="devnahian-sportlixa-hero-bg-img" 
-                    loading="eager"
-                  >
-                  <div class="devnahian-sportlixa-hero-overlay"></div>
-                  <div class="devnahian-sportlixa-hero-content">
-                    <span class="devnahian-sportlixa-badge-tag"><?php echo $cat_name; ?></span>
-                    <h1 class="devnahian-sportlixa-hero-headline">
-                      <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                    </h1>
-                    <p class="devnahian-sportlixa-hero-subtext"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 24 ) ); ?></p>
-                    <div class="devnahian-sportlixa-hero-meta-row">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                      <span><?php echo esc_html( get_the_date( 'M j, Y' ) ); ?></span>
-                      <span>•</span>
-                      <span><?php printf( esc_html__( '%d min read', 'sportlixa' ), $read_time ); ?></span>
-                    </div>
-                    <a href="<?php the_permalink(); ?>" class="devnahian-sportlixa-btn-lime"><?php esc_html_e( 'READ FULL BREAKDOWN &rarr;', 'sportlixa' ); ?></a>
-                  </div>
-                </article>
-                <?php
-            endwhile;
-            wp_reset_postdata();
-        endif;
-        ?>
+        if ( $hero_featured_query->have_posts() ) :
+            $hero_featured_query->the_post();
+            $categories = get_the_category();
+            $cat_name   = ! empty( $categories ) ? esc_html( $categories[0]->name ) : esc_html__( 'NFL', 'sportlixa' );
+            $thumb_url  = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'full' ) : 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1280&q=80';
+            $words      = str_word_count( strip_tags( get_the_content() ) );
+            $read_time  = max( 1, ceil( $words / 200 ) );
+            ?>
+            <article class="devnahian-sportlixa-hero-lead-card">
+              <img 
+                src="<?php echo esc_url( $thumb_url ); ?>" 
+                alt="<?php echo esc_attr( get_the_title() ); ?>" 
+                class="devnahian-sportlixa-hero-bg-img" 
+                loading="eager"
+              >
+              <div class="devnahian-sportlixa-hero-overlay"></div>
+              <div class="devnahian-sportlixa-hero-content">
+                <span class="devnahian-sportlixa-badge-tag"><?php echo $cat_name; ?></span>
+                <h1 class="devnahian-sportlixa-hero-headline">
+                  <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                </h1>
+                <p class="devnahian-sportlixa-hero-subtext"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 24 ) ); ?></p>
+                <div class="devnahian-sportlixa-hero-meta-row">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span><?php echo esc_html( get_the_date( 'M j, Y' ) ); ?></span>
+                  <span>•</span>
+                  <span><?php printf( esc_html__( '%d min read', 'sportlixa' ), $read_time ); ?></span>
+                </div>
+                <a href="<?php the_permalink(); ?>" class="devnahian-sportlixa-btn-lime"><?php esc_html_e( 'READ FULL BREAKDOWN &rarr;', 'sportlixa' ); ?></a>
+              </div>
+            </article>
 
-        <!-- Right 3 Stacked Cards -->
-        <aside class="devnahian-sportlixa-hero-stacked">
-          <?php
-          // Query Next 3 Featured Posts
-          $hero_stacked_query = new WP_Query( [
-              'posts_per_page'      => 3,
-              'offset'              => 1,
-              'post_status'         => 'publish',
-              'ignore_sticky_posts' => 1,
-          ] );
-
-          if ( $hero_stacked_query->have_posts() ) :
-              while ( $hero_stacked_query->have_posts() ) : $hero_stacked_query->the_post();
+            <aside class="devnahian-sportlixa-hero-stacked">
+              <?php
+              while ( $hero_featured_query->have_posts() ) :
+                  $hero_featured_query->the_post();
                   $categories = get_the_category();
                   $cat_name   = ! empty( $categories ) ? esc_html( $categories[0]->name ) : esc_html__( 'Sports', 'sportlixa' );
                   $thumb_url  = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'medium_large' ) : 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=800&q=80';
@@ -374,16 +347,18 @@ foreach ( $live_games_data as $lg ) {
                   </article>
                   <?php
               endwhile;
-              wp_reset_postdata();
-          endif;
-          ?>
-        </aside>
+              ?>
+            </aside>
+            <?php
+            wp_reset_postdata();
+        endif;
+        ?>
 
       </div>
     </section>
 
     <!-- ==========================================================================
-       CONTAINED PROFESSIONAL LIVE SCORES STRIP (POWERED BY LIVE API)
+       CONTAINED PROFESSIONAL LIVE SCORES STRIP
        ========================================================================== -->
     <section class="devnahian-sportlixa-live-scores-container-block" id="scores">
       <div class="devnahian-sportlixa-scores-header">
@@ -412,18 +387,15 @@ foreach ( $live_games_data as $lg ) {
                 </span>
               </div>
               <div class="devnahian-sportlixa-score-match-row">
-                <!-- Home Team -->
                 <div class="devnahian-sportlixa-score-team-side">
                   <?php sportlixa_render_team_crest_svg( $game['home_code'], $game['home_logo'] ); ?>
                   <span class="devnahian-sportlixa-team-code"><?php echo esc_html( $game['home_code'] ); ?></span>
                 </div>
-                <!-- Score Numbers -->
                 <div class="devnahian-sportlixa-score-board-nums">
                   <span class="<?php echo $home_lead ? 'lead-score' : ''; ?>"><?php echo esc_html( $game['home_score'] ); ?></span>
                   <span class="score-hyphen">-</span>
                   <span class="<?php echo $away_lead ? 'lead-score' : ''; ?>"><?php echo esc_html( $game['away_score'] ); ?></span>
                 </div>
-                <!-- Away Team -->
                 <div class="devnahian-sportlixa-score-team-side">
                   <span class="devnahian-sportlixa-team-code"><?php echo esc_html( $game['away_code'] ); ?></span>
                   <?php sportlixa_render_team_crest_svg( $game['away_code'], $game['away_logo'] ); ?>
@@ -454,12 +426,7 @@ foreach ( $live_games_data as $lg ) {
 
         <!-- Column 1: Lead Top Story Card -->
         <?php
-        $top_story_hero = new WP_Query( [
-            'posts_per_page'      => 1,
-            'offset'              => 4,
-            'post_status'         => 'publish',
-            'ignore_sticky_posts' => 1,
-        ] );
+        $top_story_hero = sportlixa_get_top_stories_posts( 1 );
 
         if ( $top_story_hero->have_posts() ) :
             while ( $top_story_hero->have_posts() ) : $top_story_hero->the_post();
@@ -497,12 +464,24 @@ foreach ( $live_games_data as $lg ) {
         <!-- Column 2: Mid Column Wire (3 Posts) -->
         <div class="devnahian-sportlixa-mid-stories-column">
           <?php
-          $mid_stories = new WP_Query( [
-              'posts_per_page'      => 3,
-              'offset'              => 5,
-              'post_status'         => 'publish',
-              'ignore_sticky_posts' => 1,
-          ] );
+          $top_story_ids = sportlixa_get_option( 'top_story_post_ids', [] );
+
+          if ( ! empty( $top_story_ids ) ) {
+              $mid_stories = new WP_Query( [
+                  'post__in'       => $top_story_ids,
+                  'orderby'        => 'post__in',
+                  'posts_per_page' => 3,
+                  'offset'         => 1,
+                  'post_status'    => 'publish',
+              ] );
+          } else {
+              $mid_stories = new WP_Query( [
+                  'posts_per_page'      => 3,
+                  'offset'              => 5,
+                  'post_status'         => 'publish',
+                  'ignore_sticky_posts' => 1,
+              ] );
+          }
 
           if ( $mid_stories->have_posts() ) :
               while ( $mid_stories->have_posts() ) : $mid_stories->the_post();
@@ -566,7 +545,6 @@ foreach ( $live_games_data as $lg ) {
             </div>
           </div>
 
-          <!-- Dynamic Trending Posts -->
           <div class="devnahian-sportlixa-trending-box" id="trending">
             <div class="devnahian-sportlixa-trending-header"><?php esc_html_e( 'TRENDING NOW', 'sportlixa' ); ?></div>
             <ol class="devnahian-sportlixa-trending-list">
@@ -599,7 +577,7 @@ foreach ( $live_games_data as $lg ) {
     </section>
 
     <!-- ==========================================================================
-       DEDICATED MULTI-SPORT SPOTLIGHT HUB (Querying By Category Slugs)
+       DEDICATED MULTI-SPORT SPOTLIGHT HUB
        ========================================================================== -->
     <section class="devnahian-sportlixa-multisport-section">
       <div class="devnahian-sportlixa-section-title">
@@ -651,7 +629,7 @@ foreach ( $live_games_data as $lg ) {
     </section>
 
     <!-- ==========================================================================
-       NFL STANDINGS (POWERED BY ESPN STANDINGS API) & MVP STAT LEADERS
+       NFL STANDINGS & MVP STAT LEADERS
        ========================================================================== -->
     <section class="devnahian-sportlixa-nfl-expanded-section" id="nfl-standings">
       <div class="devnahian-sportlixa-section-title">
@@ -660,7 +638,6 @@ foreach ( $live_games_data as $lg ) {
       </div>
 
       <div class="devnahian-sportlixa-nfl-dual-grid">
-        <!-- Standings Table Box -->
         <div class="devnahian-sportlixa-nfl-standings-box">
           <div class="devnahian-sportlixa-standings-tabs">
             <button class="devnahian-sportlixa-tab-btn active" id="devnahian-sportlixa-tabAfcBtn" onclick="switchStandingsConference('afc')">AFC Leaders</button>
@@ -696,7 +673,6 @@ foreach ( $live_games_data as $lg ) {
           </div>
         </div>
 
-        <!-- NFL MVP & Stat Leaderboards -->
         <div class="devnahian-sportlixa-nfl-leaders-box" id="nfl-leaders">
           <!-- 1. Patrick Mahomes -->
           <div class="devnahian-sportlixa-leader-row">
@@ -746,7 +722,7 @@ foreach ( $live_games_data as $lg ) {
               <div class="devnahian-sportlixa-leader-avatar">
                 <img 
                   src="https://commons.wikimedia.org/wiki/Special:FilePath/Kenneth_Walker_III_being_interviewed_by_Time2Football_2026_(cropped).png" 
-                  alt="Kenneth Walker III Seattle Seahawks" 
+                  alt="Kenneth Walker III" 
                   loading="lazy"
                 >
               </div>
@@ -767,7 +743,7 @@ foreach ( $live_games_data as $lg ) {
               <div class="devnahian-sportlixa-leader-avatar">
                 <img 
                   src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Ceedee_Lamb_2021.jpg/300px-Ceedee_Lamb_2021.jpg" 
-                  alt="CeeDee Lamb Dallas Cowboys" 
+                  alt="CeeDee Lamb" 
                   loading="lazy"
                 >
               </div>
@@ -786,53 +762,72 @@ foreach ( $live_games_data as $lg ) {
     </section>
 
     <!-- ==========================================================================
-       INJURY REPORT WIRE & FANTASY SLEEPERS
+       DYNAMIC: INJURY REPORT WIRE & FANTASY SLEEPERS (FROM SETTINGS REPEATER)
        ========================================================================== -->
     <section class="devnahian-sportlixa-nfl-expanded-section" id="nfl-wire">
       <div class="devnahian-sportlixa-section-title">
-        <div class="devnahian-sportlixa-title-left"><?php esc_html_e( 'NFL INJURY WIRE & FANTASY SLEEPERS', 'sportlixa' ); ?></div>
-        <a href="#scores" class="devnahian-sportlixa-title-link"><?php esc_html_e( 'Score Center &rarr;', 'sportlixa' ); ?></a>
+        <div class="devnahian-sportlixa-title-left">
+          <span style="display:inline-block; width:8px; height:8px; background:#ff3b30; border-radius:50%; margin-right:6px;"></span>
+          <?php esc_html_e( 'NFL INJURY WIRE & FANTASY SLEEPERS', 'sportlixa' ); ?>
+        </div>
+        <?php
+        $fantasy_cat = get_category_by_slug( 'fantasy-injuries' );
+        $fantasy_url = $fantasy_cat ? get_category_link( $fantasy_cat ) : '#nfl-wire';
+        ?>
+        <a href="<?php echo esc_url( $fantasy_url ); ?>" class="devnahian-sportlixa-title-link"><?php esc_html_e( 'Fantasy & Injury &rarr;', 'sportlixa' ); ?></a>
       </div>
 
       <div class="devnahian-sportlixa-nfl-wire-grid">
-        <article class="devnahian-sportlixa-nfl-wire-card">
-          <div class="wire-badge-row">
-            <span class="status-badge status-questionable">Questionable</span>
-            <span class="wire-team-tag">Chiefs WR</span>
-          </div>
-          <div class="wire-player">Rashee Rice</div>
-          <p class="wire-note">Hamstring strain sustained during Week 5. Underwent limited walkthroughs on Thursday; game-time decision for Sunday.</p>
-          <div class="wire-fantasy-chip">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-            Fantasy: Start Xavier Worthy as WR2
-          </div>
-        </article>
+        <?php
+        $saved_injuries = function_exists( 'sportlixa_get_injury_wire_items' ) ? sportlixa_get_injury_wire_items() : [];
 
-        <article class="devnahian-sportlixa-nfl-wire-card">
-          <div class="wire-badge-row">
-            <span class="status-badge status-healthy">Probable</span>
-            <span class="wire-team-tag">Ravens QB</span>
-          </div>
-          <div class="wire-player">Lamar Jackson</div>
-          <p class="wire-note">Cleared ankle soreness protocol following standard magnetic scan. Full participant in Friday offensive scrimmages.</p>
-          <div class="wire-fantasy-chip">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-            Fantasy: Elite Tier 1 Start
-          </div>
-        </article>
+        if ( ! empty( $saved_injuries ) ) :
+            foreach ( $saved_injuries as $player ) :
+                $name     = esc_html( $player['name'] ?? '' );
+                $team_pos = esc_html( $player['team_pos'] ?? '' );
+                $status   = $player['status'] ?? 'Questionable';
+                $desc     = esc_html( $player['desc'] ?? '' );
+                $fantasy  = esc_html( $player['fantasy'] ?? '' );
 
-        <article class="devnahian-sportlixa-nfl-wire-card">
-          <div class="wire-badge-row">
-            <span class="status-badge status-out">Out (IR)</span>
-            <span class="wire-team-tag">49ers RB</span>
-          </div>
-          <div class="wire-player">Christian McCaffrey</div>
-          <p class="wire-note">Remains on designated short-term injured reserve recovering from Achilles tendinitis. Jordan Mason retains lead carries.</p>
-          <div class="wire-fantasy-chip">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-            Waiver Target: Jordan Mason (98% Rostered)
-          </div>
-        </article>
+                // Calculate initials for fallback circle avatar
+                $initials = '';
+                $name_parts = explode( ' ', trim( $name ) );
+                foreach ( array_slice( $name_parts, 0, 2 ) as $np ) {
+                    $initials .= strtoupper( substr( $np, 0, 1 ) );
+                }
+
+                $badge_class = 'wire-status-questionable';
+                if ( stripos( $status, 'Probable' ) !== false ) {
+                    $badge_class = 'wire-status-probable';
+                } elseif ( stripos( $status, 'Out' ) !== false ) {
+                    $badge_class = 'wire-status-out';
+                } elseif ( stripos( $status, 'Doubtful' ) !== false ) {
+                    $badge_class = 'wire-status-doubtful';
+                }
+                ?>
+                <article class="devnahian-sportlixa-wire-pro-card">
+                  <div class="wire-pro-header">
+                    <div class="wire-pro-avatar"><?php echo esc_html( $initials ?: 'NFL' ); ?></div>
+                    <div class="wire-pro-info">
+                      <h4 class="wire-pro-name"><?php echo $name; ?></h4>
+                      <span class="wire-pro-sub"><?php echo $team_pos; ?></span>
+                    </div>
+                    <span class="wire-pro-pill <?php echo esc_attr( $badge_class ); ?>"><?php echo esc_html( $status ); ?></span>
+                  </div>
+                  <div class="wire-pro-body">
+                    <p class="wire-pro-desc"><?php echo $desc; ?></p>
+                  </div>
+                  <?php if ( ! empty( $fantasy ) ) : ?>
+                  <div class="wire-pro-fantasy">
+                    <span class="fantasy-badge">FANTASY INTEL</span>
+                    <span class="fantasy-action"><?php echo $fantasy; ?></span>
+                  </div>
+                  <?php endif; ?>
+                </article>
+            <?php 
+            endforeach; 
+        endif; 
+        ?>
       </div>
     </section>
 
@@ -921,15 +916,16 @@ foreach ( $live_games_data as $lg ) {
     </section>
 
     <!-- ==========================================================================
-       BOTTOM TRIPLET (STRICT 1:1 EQUAL HEIGHT MODULE)
+       BOTTOM TRIPLET (MATCHUP BREAKDOWN | SOCCER ANALYSIS | VIDEO POPUP)
        ========================================================================== -->
     <section class="devnahian-sportlixa-bottom-triplet-section">
       <div class="devnahian-sportlixa-triplet-grid">
 
-        <!-- 1. Game Previews -->
+        <!-- 1. Matchup Breakdown (Formerly Game Previews) -->
         <div class="devnahian-sportlixa-triplet-col">
           <div class="devnahian-sportlixa-section-title">
-            <div class="devnahian-sportlixa-title-left"><?php esc_html_e( 'GAME PREVIEWS', 'sportlixa' ); ?></div>
+            <div class="devnahian-sportlixa-title-left"><?php esc_html_e( 'MATCHUP BREAKDOWN', 'sportlixa' ); ?></div>
+            <a href="#scores" class="devnahian-sportlixa-title-link"><?php esc_html_e( 'All Matchups &rarr;', 'sportlixa' ); ?></a>
           </div>
           <div class="devnahian-sportlixa-preview-card">
             <div class="devnahian-sportlixa-matchup-row">
@@ -956,31 +952,41 @@ foreach ( $live_games_data as $lg ) {
             </div>
             <h4 class="matchup-title">Chiefs vs Bills</h4>
             <div class="matchup-time">Oct 6, 2026 • 1:00 PM (ET)</div>
-            <a href="#scores" class="matchup-action-link"><?php esc_html_e( 'MATCH CENTER & PREVIEW &rarr;', 'sportlixa' ); ?></a>
+            <a href="#scores" class="matchup-action-link"><?php esc_html_e( 'VIEW BREAKDOWN & INTEL &rarr;', 'sportlixa' ); ?></a>
           </div>
         </div>
 
-        <!-- 2. Sports Analysis (Dynamic Post) -->
+        <!-- 2. Sports Analysis (QUERIED FROM SOCCER CATEGORY) -->
         <div class="devnahian-sportlixa-triplet-col">
           <div class="devnahian-sportlixa-section-title">
             <div class="devnahian-sportlixa-title-left"><?php esc_html_e( 'SPORTS ANALYSIS', 'sportlixa' ); ?></div>
           </div>
           <?php
-          $analysis_post = new WP_Query( [
+          $soccer_analysis_post = new WP_Query( [
+              'category_name'       => 'soccer',
               'posts_per_page'      => 1,
-              'offset'              => 8,
               'post_status'         => 'publish',
               'ignore_sticky_posts' => 1,
           ] );
 
-          if ( $analysis_post->have_posts() ) :
-              while ( $analysis_post->have_posts() ) : $analysis_post->the_post();
-                  $thumb_url = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'medium_large' ) : 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=800&q=80';
+          if ( ! $soccer_analysis_post->have_posts() ) {
+              $soccer_analysis_post = new WP_Query( [
+                  'posts_per_page'      => 1,
+                  'offset'              => 8,
+                  'post_status'         => 'publish',
+                  'ignore_sticky_posts' => 1,
+              ] );
+          }
+
+          if ( $soccer_analysis_post->have_posts() ) :
+              while ( $soccer_analysis_post->have_posts() ) : $soccer_analysis_post->the_post();
+                  $thumb_url = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'medium_large' ) : 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80';
                   $words     = str_word_count( strip_tags( get_the_content() ) );
                   $read_time = max( 1, ceil( $words / 200 ) );
                   ?>
                   <div class="devnahian-sportlixa-analysis-card">
                     <div class="devnahian-sportlixa-analysis-thumb devnahian-sportlixa-img-box">
+                      <span class="badge-tag" style="position:absolute; top:12px; left:12px; z-index:2; font-size:10px; font-weight:800; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); padding:4px 8px; border-radius:4px; text-transform:uppercase; color:#fff; border:1px solid rgba(255,255,255,0.15);">SOCCER</span>
                       <img 
                         src="<?php echo esc_url( $thumb_url ); ?>" 
                         alt="<?php echo esc_attr( get_the_title() ); ?>" 
@@ -998,7 +1004,7 @@ foreach ( $live_games_data as $lg ) {
                           <span><?php printf( esc_html__( '%d min read', 'sportlixa' ), $read_time ); ?></span>
                         </div>
                       </div>
-                      <a href="<?php the_permalink(); ?>" class="analysis-action-link"><?php esc_html_e( 'READ MORE &rarr;', 'sportlixa' ); ?></a>
+                      <a href="<?php the_permalink(); ?>" class="analysis-action-link"><?php esc_html_e( 'READ TACTICAL REPORT &rarr;', 'sportlixa' ); ?></a>
                     </div>
                   </div>
                   <?php
@@ -1008,28 +1014,54 @@ foreach ( $live_games_data as $lg ) {
           ?>
         </div>
 
-        <!-- 3. Latest Videos -->
+        <!-- 3. Latest Videos (FROM SETTINGS REPEATER WITH MODAL POPUP) -->
         <div class="devnahian-sportlixa-triplet-col">
           <div class="devnahian-sportlixa-section-title">
             <div class="devnahian-sportlixa-title-left"><?php esc_html_e( 'LATEST VIDEOS', 'sportlixa' ); ?></div>
+            <?php
+            $video_cat = get_category_by_slug( 'videos' );
+            $video_url = $video_cat ? get_category_link( $video_cat ) : '#scores';
+            ?>
+            <a href="<?php echo esc_url( $video_url ); ?>" class="devnahian-sportlixa-title-link"><?php esc_html_e( 'All Videos &rarr;', 'sportlixa' ); ?></a>
           </div>
-          <div class="devnahian-sportlixa-video-card">
+
+          <?php
+          $saved_videos = function_exists( 'sportlixa_get_video_items' ) ? sportlixa_get_video_items() : [];
+          $first_video  = ! empty( $saved_videos ) ? reset( $saved_videos ) : null;
+
+          $vid_title    = $first_video['title'] ?? 'Top 10 Plays of the Week';
+          $vid_duration = $first_video['duration'] ?? '04:32';
+          $vid_thumb    = ! empty( $first_video['thumb'] ) ? $first_video['thumb'] : 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=800&q=80';
+          $vid_embed    = $first_video['embed_url'] ?? 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1';
+          $vid_meta     = $first_video['meta'] ?? 'Oct 5, 2026 • 2.4K views';
+          ?>
+          <div 
+            class="devnahian-sportlixa-video-card" 
+            style="cursor:pointer;" 
+            role="button"
+            tabindex="0"
+            aria-label="<?php echo esc_attr( $vid_title ); ?>"
+            onclick="openSportlixaVideoModal('<?php echo esc_url( $vid_embed ); ?>', '<?php echo esc_js( $vid_title ); ?>')"
+            onkeydown="if(event.key === 'Enter') openSportlixaVideoModal('<?php echo esc_url( $vid_embed ); ?>', '<?php echo esc_js( $vid_title ); ?>')"
+          >
             <img 
-              src="https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=800&q=80" 
-              alt="NBA highlights video poster" 
+              src="<?php echo esc_url( $vid_thumb ); ?>" 
+              alt="<?php echo esc_attr( $vid_title ); ?>" 
               class="devnahian-sportlixa-video-card-bg" 
               loading="lazy"
             >
             <div class="devnahian-sportlixa-video-overlay"></div>
-            <div class="devnahian-sportlixa-video-duration">04:32</div>
+            <?php if ( ! empty( $vid_duration ) ) : ?>
+              <div class="devnahian-sportlixa-video-duration"><?php echo esc_html( $vid_duration ); ?></div>
+            <?php endif; ?>
             <div class="devnahian-sportlixa-play-btn-circle">
               <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </div>
             <div class="devnahian-sportlixa-video-details">
-              <h4 class="devnahian-sportlixa-video-title">Top 10 Plays of the Week</h4>
+              <h4 class="devnahian-sportlixa-video-title"><?php echo esc_html( $vid_title ); ?></h4>
               <div class="devnahian-sportlixa-video-footer">
-                <span class="devnahian-sportlixa-meta-time" style="margin-top:0; color:#c4cdd8;">Oct 5, 2026 • 2.4K views</span>
-                <a href="#scores" class="devnahian-sportlixa-video-footer-link"><?php esc_html_e( 'VIEW ALL VIDEOS &rarr;', 'sportlixa' ); ?></a>
+                <span class="devnahian-sportlixa-meta-time" style="margin-top:0; color:#c4cdd8;"><?php echo esc_html( $vid_meta ); ?></span>
+                <span class="devnahian-sportlixa-video-footer-link" style="color:var(--devnahian-sportlixa-brand-volt, #b9f700); font-weight:700;"><?php esc_html_e( 'WATCH NOW &rarr;', 'sportlixa' ); ?></span>
               </div>
             </div>
           </div>
@@ -1039,6 +1071,217 @@ foreach ( $live_games_data as $lg ) {
     </section>
 
   </main>
+
+  <!-- ==========================================================================
+     VIDEO POPUP MODAL DIALOG
+     ========================================================================== -->
+  <div id="sportlixaVideoModal" class="sportlixa-video-modal" aria-hidden="true" role="dialog">
+    <div class="sportlixa-video-modal-backdrop" onclick="closeSportlixaVideoModal()"></div>
+    <div class="sportlixa-video-modal-dialog">
+      <div class="sportlixa-video-modal-header">
+        <h4 id="sportlixaVideoModalTitle" class="sportlixa-video-modal-heading">Video Player</h4>
+        <button type="button" class="sportlixa-video-modal-close" onclick="closeSportlixaVideoModal()" aria-label="Close video player">&times;</button>
+      </div>
+      <div class="sportlixa-video-modal-iframe-wrap">
+        <iframe id="sportlixaVideoPlayerFrame" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* --------------------------------------------------
+       INJURY & FANTASY WIRE STYLING
+       -------------------------------------------------- */
+    .devnahian-sportlixa-wire-pro-card {
+      background: #11151c;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .devnahian-sportlixa-wire-pro-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .wire-pro-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .wire-pro-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #202636, #161a24);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .wire-pro-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .wire-pro-name {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wire-pro-sub {
+      font-size: 12px;
+      color: #8c9ba5;
+    }
+    .wire-pro-pill {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .wire-status-questionable {
+      background: rgba(255, 179, 0, 0.15);
+      color: #ffb300;
+      border: 1px solid rgba(255, 179, 0, 0.3);
+    }
+    .wire-status-probable {
+      background: rgba(0, 230, 118, 0.15);
+      color: #00e676;
+      border: 1px solid rgba(0, 230, 118, 0.3);
+    }
+    .wire-status-out {
+      background: rgba(255, 61, 0, 0.15);
+      color: #ff3d00;
+      border: 1px solid rgba(255, 61, 0, 0.3);
+    }
+    .wire-status-doubtful {
+      background: rgba(233, 30, 99, 0.15);
+      color: #e91e63;
+      border: 1px solid rgba(233, 30, 99, 0.3);
+    }
+    .wire-pro-desc {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #c5ced8;
+    }
+    .wire-pro-fantasy {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid #b9f700;
+      padding: 8px 10px;
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+    }
+    .fantasy-badge {
+      display: block;
+      font-size: 10px;
+      font-weight: 800;
+      color: #b9f700;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .fantasy-action {
+      color: #e3e9f0;
+      font-weight: 500;
+    }
+
+    /* --------------------------------------------------
+       VIDEO POPUP MODAL STYLING
+       -------------------------------------------------- */
+    .sportlixa-video-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 999999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .sportlixa-video-modal.is-active {
+      display: flex;
+    }
+    .sportlixa-video-modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 7, 10, 0.85);
+      backdrop-filter: blur(8px);
+    }
+    .sportlixa-video-modal-dialog {
+      position: relative;
+      width: 100%;
+      max-width: 860px;
+      background: #0f131a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      z-index: 2;
+      animation: sportlixaModalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes sportlixaModalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .sportlixa-video-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #141923;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .sportlixa-video-modal-heading {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .sportlixa-video-modal-close {
+      background: transparent;
+      border: none;
+      color: #8c9ba5;
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 4px;
+      transition: color 0.15s;
+    }
+    .sportlixa-video-modal-close:hover {
+      color: #fff;
+    }
+    .sportlixa-video-modal-iframe-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000;
+    }
+    .sportlixa-video-modal-iframe-wrap iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
 
   <script>
     function filterLiveScores(sport, buttonEl) {
@@ -1093,6 +1336,39 @@ foreach ( $live_games_data as $lg ) {
       });
       tbody.innerHTML = html;
     }
+
+    // Video Modal Handlers
+    function openSportlixaVideoModal(videoSrc, title) {
+      const modal = document.getElementById('sportlixaVideoModal');
+      const frame = document.getElementById('sportlixaVideoPlayerFrame');
+      const heading = document.getElementById('sportlixaVideoModalTitle');
+
+      if (title && heading) heading.textContent = title;
+      if (frame) frame.src = videoSrc;
+      if (modal) {
+        modal.classList.add('is-active');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSportlixaVideoModal() {
+      const modal = document.getElementById('sportlixaVideoModal');
+      const frame = document.getElementById('sportlixaVideoPlayerFrame');
+
+      if (frame) frame.src = '';
+      if (modal) {
+        modal.classList.remove('is-active');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeSportlixaVideoModal();
+      }
+    });
   </script>
 
 <?php get_footer(); ?>
