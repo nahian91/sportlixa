@@ -10500,3 +10500,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+.devnahian-sportlixa-stacked-thumb.devnahian-sportlixa-img-box, .devnahian-sportlixa-mid-story-thumb.devnahian-sportlixa-img-box {
+	min-width: 180px;
+	max-width: 180px;
+}
