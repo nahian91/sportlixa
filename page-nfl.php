@@ -66,6 +66,7 @@ $current_page_url = get_permalink();
     border-bottom: 1px solid var(--sl-border, rgba(255, 255, 255, 0.08));
     padding-bottom: 1.5rem;
     margin-bottom: 2rem;
+    position: inherit;
   }
   .nfl-brand-row {
     display: flex;

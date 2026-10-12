@@ -279,7 +279,7 @@ $cat_scores_data    = sportlixa_get_category_live_scores( $cat_slug );
 $cat_standings_data = sportlixa_get_category_standings( $cat_slug );
 ?>
 
-<main class="devnahian-sportlixa-container" style="padding-top: 1.5rem; padding-bottom: 4rem;">
+<main class="devnahian-sportlixa-container">
 
   <!-- ==========================================================================
        CATEGORY BANNER & IN-FLOW BREADCRUMBS (Matched with page.php)
@@ -312,15 +312,11 @@ $cat_standings_data = sportlixa_get_category_standings( $cat_slug );
         </h1>
         <p class="devnahian-sportlixa-category-desc" style="color:var(--sl-text-secondary, #94a3b8); font-size:0.95rem; line-height:1.6; margin:0; max-width:850px;">
           <?php
-          if ( ! empty( $cat_desc ) ) {
-              echo wp_kses_post( wpautop( $cat_desc ) );
-          } else {
-              printf(
+            printf(
                   /* translators: %s: category name */
                   esc_html__( 'Complete coverage for %s: live match scores, standings telemetry, game reports, injury news, and technical film analysis.', 'sportlixa' ),
                   esc_html( $cat_name )
               );
-          }
           ?>
         </p>
       </div>
@@ -487,7 +483,7 @@ $cat_standings_data = sportlixa_get_category_standings( $cat_slug );
     <aside class="devnahian-sportlixa-cat-sidebar" aria-label="<?php esc_attr_e( 'League Sidebar', 'sportlixa' ); ?>">
 
       <!-- Division Standings Card -->
-      <div class="devnahian-sportlixa-nfl-standings-box" id="standings" style="margin-bottom: 2rem;">
+      <div class="devnahian-sportlixa-nfl-standings-box" id="standings">
         <div class="devnahian-sportlixa-section-title" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--sl-border, rgba(255,255,255,0.08)); margin-bottom: 1rem;">
           <div class="devnahian-sportlixa-title-left" style="font-size:12.5px; font-weight:800; color:#fff; letter-spacing:0.04em;">
             <?php echo esc_html( strtoupper( $cat_name ) ); ?> <?php esc_html_e( 'LEADERS', 'sportlixa' ); ?>
@@ -529,7 +525,7 @@ $cat_standings_data = sportlixa_get_category_standings( $cat_slug );
       </div>
 
       <!-- Stat Leaders -->
-      <div class="devnahian-sportlixa-nfl-leaders-box" style="margin-bottom: 2rem;">
+      <div class="devnahian-sportlixa-nfl-leaders-box">
         <div class="devnahian-sportlixa-section-title" style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--sl-border, rgba(255,255,255,0.08)); margin-bottom: 1rem;">
           <div class="devnahian-sportlixa-title-left" style="font-size:12.5px; font-weight:800; color:#fff; letter-spacing:0.04em;">
             <?php printf( esc_html__( '%s STAT LEADERS', 'sportlixa' ), esc_html( strtoupper( $cat_name ) ) ); ?>
@@ -566,23 +562,6 @@ $cat_standings_data = sportlixa_get_category_standings( $cat_slug );
             <div class="devnahian-sportlixa-leader-value">537</div>
             <div class="devnahian-sportlixa-leader-unit">6 TD</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Podcast Episode -->
-      <div class="devnahian-sportlixa-audio-widget-card" style="margin-bottom: 2rem;">
-        <div class="devnahian-sportlixa-audio-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-          <?php printf( esc_html__( 'SPORTLIXA %s PODCAST', 'sportlixa' ), esc_html( strtoupper( $cat_name ) ) ); ?>
-        </div>
-        <h4 class="devnahian-sportlixa-audio-title"><?php esc_html_e( 'The Tape Never Lies: Breaking Down Schemes & Matchups', 'sportlixa' ); ?></h4>
-        <p style="font-size:11.5px; color:var(--sl-text-muted, #64748b);"><?php esc_html_e( 'Hosted by Senior Scouts • Ep 142 • 34 mins', 'sportlixa' ); ?></p>
-        <div class="devnahian-sportlixa-audio-player-row">
-          <button type="button" class="devnahian-sportlixa-btn-play-pill" onclick="showToast('Streaming SportLixa Podcast...')">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <?php esc_html_e( 'LISTEN NOW', 'sportlixa' ); ?>
-          </button>
-          <span style="font-size:11px; color:var(--sl-text-muted, #64748b);">Apple • Spotify</span>
         </div>
       </div>
 

@@ -19,7 +19,7 @@ $league_counts = [
 ];
 
 foreach ( $predictions_data as $p ) {
-    $sp = strtolower( $p['sport'] );
+    $sp = strtolower( $p['sport'] ?? '' );
     if ( isset( $league_counts[ $sp ] ) ) {
         $league_counts[ $sp ]++;
     }
@@ -28,7 +28,24 @@ foreach ( $predictions_data as $p ) {
 
 <main class="devnahian-sportlixa-container sportlixa-predictions-page">
 
-  <!-- Header -->
+  <!-- ==========================================================================
+     NON-STICKY BREADCRUMB NAVIGATION
+     ========================================================================== -->
+  <nav class="sportlixa-static-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sportlixa' ); ?>">
+    <ol class="sportlixa-breadcrumb-list">
+      <li class="sportlixa-breadcrumb-item">
+        <a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'sportlixa' ); ?></a>
+      </li>
+      <li class="sportlixa-breadcrumb-separator" aria-hidden="true">&rsaquo;</li>
+      <li class="sportlixa-breadcrumb-item active" aria-current="page">
+        <?php esc_html_e( 'Predictions', 'sportlixa' ); ?>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- ==========================================================================
+     HEADER & FILTER PILLS
+     ========================================================================== -->
   <header class="sportlixa-pred-header">
     <div class="sportlixa-pred-badge">
       <span class="pulse-indicator"></span>
@@ -59,20 +76,25 @@ foreach ( $predictions_data as $p ) {
     </div>
   </header>
 
-  <!-- Prediction Grid -->
+  <!-- ==========================================================================
+     PREDICTION CARDS GRID
+     ========================================================================== -->
   <section class="sportlixa-pred-grid" id="predictionsGrid">
     <?php if ( ! empty( $predictions_data ) ) : ?>
       <?php foreach ( $predictions_data as $game ) : 
-          $game_id   = esc_attr( $game['id'] );
-          $sport     = esc_attr( $game['sport'] );
-          $home      = $game['home'];
-          $away      = $game['away'];
+          $game_id   = esc_attr( $game['id'] ?? uniqid() );
+          $sport     = esc_attr( strtolower( $game['sport'] ?? '' ) );
+          $home      = $game['home'] ?? [];
+          $away      = $game['away'] ?? [];
+          $home_pct  = (int)( $home['win_pct'] ?? 50 );
+          $away_pct  = (int)( $away['win_pct'] ?? 50 );
+          $meta_time = trim( ( $game['game_date'] ?? '' ) . ( ! empty( $game['broadcast'] ) ? ' • ' . $game['broadcast'] : '' ) );
       ?>
         <article class="sportlixa-pred-card" data-sport="<?php echo $sport; ?>" id="game-card-<?php echo $game_id; ?>">
           
           <div class="pred-card-top">
-            <span class="pred-sport-tag"><?php echo strtoupper( $sport ); ?></span>
-            <span class="pred-schedule-time"><?php echo esc_html( $game['game_date'] ); ?> • <?php echo esc_html( $game['broadcast'] ); ?></span>
+            <span class="pred-sport-tag"><?php echo esc_html( strtoupper( $sport ) ); ?></span>
+            <span class="pred-schedule-time"><?php echo esc_html( $meta_time ); ?></span>
           </div>
 
           <!-- Teams Board -->
@@ -82,12 +104,12 @@ foreach ( $predictions_data as $p ) {
             <div class="pred-team-col">
               <div class="pred-logo-wrap">
                 <?php if ( ! empty( $away['logo'] ) ) : ?>
-                  <img src="<?php echo esc_url( $away['logo'] ); ?>" alt="<?php echo esc_attr( $away['code'] ); ?>" loading="lazy" />
+                  <img src="<?php echo esc_url( $away['logo'] ); ?>" alt="<?php echo esc_attr( $away['code'] ?? '' ); ?>" loading="lazy" />
                 <?php else : ?>
-                  <span class="pred-fallback-code"><?php echo esc_html( $away['code'] ); ?></span>
+                  <span class="pred-fallback-code"><?php echo esc_html( $away['code'] ?? 'AWY' ); ?></span>
                 <?php endif; ?>
               </div>
-              <h3 class="pred-team-name"><?php echo esc_html( $away['name'] ); ?></h3>
+              <h3 class="pred-team-name"><?php echo esc_html( $away['name'] ?? $away['code'] ?? 'Away' ); ?></h3>
               <?php if ( ! empty( $away['record'] ) ) : ?>
                 <span class="pred-team-rec"><?php echo esc_html( $away['record'] ); ?></span>
               <?php endif; ?>
@@ -99,12 +121,12 @@ foreach ( $predictions_data as $p ) {
             <div class="pred-team-col">
               <div class="pred-logo-wrap">
                 <?php if ( ! empty( $home['logo'] ) ) : ?>
-                  <img src="<?php echo esc_url( $home['logo'] ); ?>" alt="<?php echo esc_attr( $home['code'] ); ?>" loading="lazy" />
+                  <img src="<?php echo esc_url( $home['logo'] ); ?>" alt="<?php echo esc_attr( $home['code'] ?? '' ); ?>" loading="lazy" />
                 <?php else : ?>
-                  <span class="pred-fallback-code"><?php echo esc_html( $home['code'] ); ?></span>
+                  <span class="pred-fallback-code"><?php echo esc_html( $home['code'] ?? 'HOM' ); ?></span>
                 <?php endif; ?>
               </div>
-              <h3 class="pred-team-name"><?php echo esc_html( $home['name'] ); ?></h3>
+              <h3 class="pred-team-name"><?php echo esc_html( $home['name'] ?? $home['code'] ?? 'Home' ); ?></h3>
               <?php if ( ! empty( $home['record'] ) ) : ?>
                 <span class="pred-team-rec"><?php echo esc_html( $home['record'] ); ?></span>
               <?php endif; ?>
@@ -115,20 +137,20 @@ foreach ( $predictions_data as $p ) {
           <!-- Win Probability Bar (From ESPN Model) -->
           <div class="pred-win-meter-wrap">
             <div class="pred-win-labels">
-              <span><?php echo esc_html( $away['code'] ); ?> <?php echo esc_html( $away['win_pct'] ); ?>%</span>
+              <span><?php echo esc_html( $away['code'] ?? 'AWY' ); ?> <?php echo esc_html( $away_pct ); ?>%</span>
               <span class="meter-title"><?php esc_html_e( 'Win Predictor', 'sportlixa' ); ?></span>
-              <span><?php echo esc_html( $home['win_pct'] ); ?>% <?php echo esc_html( $home['code'] ); ?></span>
+              <span><?php echo esc_html( $home_pct ); ?>% <?php echo esc_html( $home['code'] ?? 'HOM' ); ?></span>
             </div>
             <div class="pred-meter-bar">
-              <div class="pred-meter-away" style="width: <?php echo esc_attr( $away['win_pct'] ); ?>%;"></div>
-              <div class="pred-meter-home" style="width: <?php echo esc_attr( $home['win_pct'] ); ?>%;"></div>
+              <div class="pred-meter-away" style="width: <?php echo esc_attr( $away_pct ); ?>%;"></div>
+              <div class="pred-meter-home" style="width: <?php echo esc_attr( $home_pct ); ?>%;"></div>
             </div>
           </div>
 
           <!-- Vegas Lines -->
           <div class="pred-odds-strip">
-            <span>Spread: <strong><?php echo esc_html( $game['spread'] ); ?></strong></span>
-            <span>Total: <strong><?php echo esc_html( $game['over_under'] ); ?></strong></span>
+            <span>Spread: <strong><?php echo esc_html( $game['spread'] ?? 'EVEN' ); ?></strong></span>
+            <span>Total: <strong><?php echo esc_html( $game['over_under'] ?? 'O/U --' ); ?></strong></span>
           </div>
 
           <!-- Interactive User Pick Buttons -->
@@ -140,7 +162,7 @@ foreach ( $predictions_data as $p ) {
               data-pick="away"
               onclick="castGameVote('<?php echo $game_id; ?>', 'away', this)"
             >
-              Pick <?php echo esc_html( $away['code'] ); ?>
+              Pick <?php echo esc_html( $away['code'] ?? 'Away' ); ?>
             </button>
             <button 
               type="button" 
@@ -149,7 +171,7 @@ foreach ( $predictions_data as $p ) {
               data-pick="home"
               onclick="castGameVote('<?php echo $game_id; ?>', 'home', this)"
             >
-              Pick <?php echo esc_html( $home['code'] ); ?>
+              Pick <?php echo esc_html( $home['code'] ?? 'Home' ); ?>
             </button>
           </div>
 
@@ -165,7 +187,44 @@ foreach ( $predictions_data as $p ) {
 </main>
 
 <style>
-  .sportlixa-predictions-page { padding-top: 36px; padding-bottom: 70px; }
+  /* Non-sticky Breadcrumb */
+  .sportlixa-static-breadcrumb {
+    position: static !important;
+    top: auto !important;
+    margin: 0 0 20px 0;
+    padding: 0;
+    background: transparent;
+  }
+  .sportlixa-breadcrumb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .sportlixa-breadcrumb-item a {
+    color: #8c9ba5;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .sportlixa-breadcrumb-item a:hover {
+    color: var(--devnahian-sportlixa-brand-volt, #b9f700);
+  }
+  .sportlixa-breadcrumb-separator {
+    color: #4b5563;
+    font-size: 14px;
+    user-select: none;
+  }
+  .sportlixa-breadcrumb-item.active {
+    color: #cbd5e1;
+    font-weight: 600;
+  }
+
+  /* Predictions Page Layout */
+  .sportlixa-predictions-page { padding-top: 24px; padding-bottom: 70px; }
   .sportlixa-pred-header { margin-bottom: 30px; }
   .sportlixa-pred-badge {
     display: inline-flex;
@@ -178,7 +237,7 @@ foreach ( $predictions_data as $p ) {
     margin-bottom: 8px;
   }
   .pulse-indicator { width: 7px; height: 7px; background: #b9f700; border-radius: 50%; box-shadow: 0 0 8px #b9f700; }
-  .sportlixa-pred-title { font-size: 32px; font-weight: 900; color: #fff; margin: 0 0 8px 0; }
+  .sportlixa-pred-title { font-size: 32px; font-weight: 900; color: #fff; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: -0.5px; }
   .sportlixa-pred-subtext { color: #8c9ba5; font-size: 15px; margin: 0 0 20px 0; max-width: 680px; }
   
   .sportlixa-pred-pills-row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -200,7 +259,7 @@ foreach ( $predictions_data as $p ) {
     border-color: var(--devnahian-sportlixa-brand-volt, #b9f700);
   }
 
-  /* Grid */
+  /* Grid & Cards */
   .sportlixa-pred-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
@@ -295,6 +354,11 @@ foreach ( $predictions_data as $p ) {
     color: #000;
     border-color: var(--devnahian-sportlixa-brand-volt, #b9f700);
   }
+
+  @media (max-width: 768px) {
+    .sportlixa-pred-title { font-size: 24px; }
+    .sportlixa-pred-grid { grid-template-columns: 1fr; }
+  }
 </style>
 
 <script>
@@ -319,7 +383,6 @@ foreach ( $predictions_data as $p ) {
     localStorage.setItem('sportlixa_pick_' + gameId, side);
   }
 
-  // Restore saved user votes from localStorage on load
   document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.pred-btn-pick').forEach(btn => {
       const gId = btn.getAttribute('data-game');

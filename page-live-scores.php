@@ -35,6 +35,21 @@ foreach ( $all_games as $g ) {
 <main class="devnahian-sportlixa-container sportlixa-scores-page">
 
   <!-- ==========================================================================
+     NON-STICKY BREADCRUMB NAVIGATION
+     ========================================================================== -->
+  <nav class="sportlixa-static-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'sportlixa' ); ?>">
+    <ol class="sportlixa-breadcrumb-list">
+      <li class="sportlixa-breadcrumb-item">
+        <a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'sportlixa' ); ?></a>
+      </li>
+      <li class="sportlixa-breadcrumb-separator" aria-hidden="true">&rsaquo;</li>
+      <li class="sportlixa-breadcrumb-item active" aria-current="page">
+        <?php esc_html_e( 'Live Scores', 'sportlixa' ); ?>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- ==========================================================================
      PAGE HEADER & TELEMETRY STRIP
      ========================================================================== -->
   <header class="sportlixa-scores-page-header">
@@ -89,7 +104,7 @@ foreach ( $all_games as $g ) {
   </header>
 
   <!-- ==========================================================================
-     INTERACTIVE FILTER BAR
+     INTERACTIVE FILTER BAR (NON-STICKY)
      ========================================================================== -->
   <section class="sportlixa-scores-controls-row">
     <div class="sportlixa-scores-pills-wrap">
@@ -210,10 +225,49 @@ foreach ( $all_games as $g ) {
 
 <style>
   /* --------------------------------------------------------------------------
+     NON-STICKY BREADCRUMB STYLING
+     -------------------------------------------------------------------------- */
+  .sportlixa-static-breadcrumb {
+    position: static !important;
+    top: auto !important;
+    margin: 0 0 20px 0;
+    padding: 0;
+    background: transparent;
+    z-index: 1;
+  }
+  .sportlixa-breadcrumb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .sportlixa-breadcrumb-item a {
+    color: #8c9ba5;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .sportlixa-breadcrumb-item a:hover {
+    color: var(--devnahian-sportlixa-brand-volt, #b9f700);
+  }
+  .sportlixa-breadcrumb-separator {
+    color: #4b5563;
+    font-size: 14px;
+    user-select: none;
+  }
+  .sportlixa-breadcrumb-item.active {
+    color: #cbd5e1;
+    font-weight: 600;
+  }
+
+  /* --------------------------------------------------------------------------
      LIVE SCORES PAGE STYLES
      -------------------------------------------------------------------------- */
   .sportlixa-scores-page {
-    padding-top: 36px;
+    padding-top: 24px;
     padding-bottom: 70px;
   }
   .sportlixa-scores-badge {
@@ -306,8 +360,10 @@ foreach ( $all_games as $g ) {
     letter-spacing: 0.5px;
   }
 
-  /* Controls: Pills & Search */
+  /* Controls (Non-sticky) */
   .sportlixa-scores-controls-row {
+    position: static !important;
+    top: auto !important;
     display: flex;
     justify-content: space-between;
     align-items: center;

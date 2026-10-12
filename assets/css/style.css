@@ -46,8 +46,6 @@
       line-height: 1.48;
       -webkit-font-smoothing: antialiased;
       transition: background-color var(--devnahian-sportlixa-transition-smooth), color var(--devnahian-sportlixa-transition-smooth);
-      overflow-x: hidden;
-      padding-bottom: 70px;
     }
 
     @media (min-width: 1025px) {
@@ -272,9 +270,6 @@
       gap: 10px;
       cursor: pointer;
       transition: transform var(--devnahian-sportlixa-transition-fast);
-    }
-    .devnahian-sportlixa-brand-logo-wrap:hover {
-      transform: scale(1.02);
     }
     .devnahian-sportlixa-brand-mark-svg {
       width: 42px;
@@ -620,12 +615,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-hero-lead-card:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-hero-lead-card:hover .devnahian-sportlixa-hero-bg-img {
-      transform: scale(1.05);
     }
     .devnahian-sportlixa-hero-bg-img {
       position: absolute;
@@ -691,7 +682,6 @@
     }
     .devnahian-sportlixa-btn-lime:hover {
       background-color: var(--devnahian-sportlixa-brand-volt-hover);
-      transform: translateY(-2px);
       box-shadow: 0 6px 20px var(--devnahian-sportlixa-brand-volt-glow);
     }
 
@@ -711,12 +701,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-stacked-card:hover {
-      transform: translateY(-3px) scale(1.01);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-stacked-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
     }
     .devnahian-sportlixa-stacked-thumb {
       width: 130px;
@@ -839,7 +825,6 @@
     }
     .devnahian-sportlixa-score-card:hover {
       border-color: var(--devnahian-sportlixa-brand-volt);
-      transform: translateY(-2px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 10px var(--devnahian-sportlixa-brand-volt-glow);
     }
     .devnahian-sportlixa-score-card.hidden {
@@ -960,12 +945,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-top-story-hero:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-top-story-hero:hover .devnahian-sportlixa-top-story-bg-img {
-      transform: scale(1.06);
     }
     .devnahian-sportlixa-top-story-bg-img {
       position: absolute;
@@ -1013,12 +994,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-mid-story-card:hover {
-      transform: translateY(-3px) scale(1.01);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-mid-story-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
     }
     .devnahian-sportlixa-mid-story-thumb {
       width: 130px;
@@ -1063,7 +1040,6 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-marquee-game-card:hover {
-      transform: translateY(-3px);
       border-color: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-marquee-header {
@@ -1167,14 +1143,6 @@
       height: 14px;
       background-color: var(--devnahian-sportlixa-brand-volt);
     }
-    .devnahian-sportlixa-trending-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 1;
-      justify-content: space-around;
-    }
     .devnahian-sportlixa-trending-item {
       display: flex;
       align-items: center;
@@ -1183,9 +1151,6 @@
       font-weight: 600;
       color: var(--devnahian-sportlixa-text-light);
       transition: transform var(--devnahian-sportlixa-transition-fast);
-    }
-    .devnahian-sportlixa-trending-item:hover {
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-trending-item:hover a {
       color: var(--devnahian-sportlixa-brand-volt-text);
@@ -1229,11 +1194,7 @@
     }
     .devnahian-sportlixa-sport-spot-card:hover {
       border-color: var(--devnahian-sportlixa-brand-volt);
-      transform: translateY(-4px);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-sport-spot-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
     }
     .devnahian-sportlixa-sport-spot-img-wrap {
       height: 155px;
@@ -1377,7 +1338,6 @@
       transition: transform var(--devnahian-sportlixa-transition-fast), border-color var(--devnahian-sportlixa-transition-fast);
     }
     .devnahian-sportlixa-leader-row:hover {
-      transform: translateX(4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-leader-player-wrap {
@@ -1446,7 +1406,6 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-nfl-wire-card:hover {
-      transform: translateY(-3px);
       border-color: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-wire-badge-row {
@@ -1527,7 +1486,6 @@
     }
     .devnahian-sportlixa-league-card:hover {
       border-color: var(--devnahian-sportlixa-brand-volt);
-      transform: translateY(-4px) scale(1.02);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
     }
     .devnahian-sportlixa-league-icon-wrapper {
@@ -1606,7 +1564,6 @@
     .devnahian-sportlixa-analysis-card:hover,
     .devnahian-sportlixa-video-card:hover {
       border-color: var(--devnahian-sportlixa-brand-volt);
-      transform: translateY(-4px);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
     }
 
@@ -1675,9 +1632,6 @@
       overflow: hidden;
       display: flex;
     }
-    .devnahian-sportlixa-analysis-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
-    }
     .devnahian-sportlixa-analysis-thumb {
       width: 44%;
       height: 100%;
@@ -1721,9 +1675,6 @@
       justify-content: flex-end;
       padding: 16px 20px;
     }
-    .devnahian-sportlixa-video-card:hover .devnahian-sportlixa-video-card-bg {
-      transform: scale(1.06);
-    }
     .devnahian-sportlixa-video-card-bg {
       position: absolute;
       inset: 0;
@@ -1757,7 +1708,6 @@
       box-shadow: 0 0 16px var(--devnahian-sportlixa-brand-volt-glow);
     }
     .devnahian-sportlixa-video-card:hover .devnahian-sportlixa-play-btn-circle {
-      transform: translate(-50%, -60%) scale(1.15);
       background: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-play-btn-circle svg {
@@ -1846,7 +1796,6 @@
     }
     .devnahian-sportlixa-footer-links-list a:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-footer-menu-arrow {
       width: 11px;
@@ -1900,7 +1849,6 @@
     }
     .devnahian-sportlixa-footer-subscribe-btn:hover {
       background-color: var(--devnahian-sportlixa-brand-volt-hover);
-      transform: scale(1.05);
     }
     .devnahian-sportlixa-footer-subscribe-btn svg {
       width: 15px;
@@ -2102,7 +2050,7 @@
       .devnahian-sportlixa-footer-top > div:last-child { grid-column: span 2; }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width:767px) {
       .devnahian-sportlixa-container { padding: 0 14px; }
       .devnahian-sportlixa-brand-title { font-size: 20px; }
       .devnahian-sportlixa-ticker-badge-wrap { padding: 0 10px; font-size: 9.5px; }
@@ -2340,7 +2288,6 @@
       cursor: pointer;
       transition: transform var(--devnahian-sportlixa-transition-fast);
     }
-    .devnahian-sportlixa-brand-logo-wrap:hover { transform: scale(1.02); }
     .devnahian-sportlixa-brand-mark-svg {
       width: 42px;
       height: 28px;
@@ -2815,7 +2762,6 @@
     .devnahian-sportlixa-btn-secondary:hover {
       border-color: var(--devnahian-sportlixa-brand-volt);
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateY(-2px);
     }
 
     /* ==========================================================================
@@ -2844,12 +2790,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-recovery-card:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-recovery-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
     }
     .devnahian-sportlixa-recovery-thumb {
       height: 175px;
@@ -2920,7 +2862,6 @@
     }
     .devnahian-sportlixa-footer-links-list a:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-footer-menu-arrow {
       width: 11px;
@@ -3072,7 +3013,6 @@
     .devnahian-sportlixa-back-to-top:hover {
       background: var(--devnahian-sportlixa-brand-volt);
       color: #000;
-      transform: translateY(-2px);
     }
 
     .devnahian-sportlixa-toast {
@@ -3293,7 +3233,6 @@
       cursor: pointer;
       transition: transform var(--devnahian-sportlixa-transition-fast);
     }
-    .devnahian-sportlixa-brand-logo-wrap:hover { transform: scale(1.02); }
     .devnahian-sportlixa-brand-mark-svg {
       width: 42px;
       height: 28px;
@@ -3644,7 +3583,6 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-metric-card:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
     }
@@ -3766,7 +3704,6 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-pillar-card:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-pillar-icon {
@@ -3815,7 +3752,6 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-team-card:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-team-thumb {
@@ -3911,7 +3847,6 @@
     }
     .devnahian-sportlixa-btn-cta-primary:hover {
       background: var(--devnahian-sportlixa-brand-volt-hover);
-      transform: translateY(-2px);
     }
     .devnahian-sportlixa-btn-cta-secondary {
       background: var(--devnahian-sportlixa-bg-input);
@@ -3969,7 +3904,6 @@
     }
     .devnahian-sportlixa-footer-links-list a:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-footer-menu-arrow {
       width: 11px;
@@ -4121,7 +4055,6 @@
     .devnahian-sportlixa-back-to-top:hover {
       background: var(--devnahian-sportlixa-brand-volt);
       color: #000;
-      transform: translateY(-2px);
     }
 
     .devnahian-sportlixa-toast {
@@ -4310,7 +4243,6 @@
       cursor: pointer;
       transition: transform var(--devnahian-sportlixa-transition-fast);
     }
-    .devnahian-sportlixa-brand-logo-wrap:hover { transform: scale(1.02); }
     .devnahian-sportlixa-brand-mark-svg {
       width: 42px;
       height: 28px;
@@ -4729,7 +4661,6 @@
     }
     .devnahian-sportlixa-btn-submit-inquiry:hover {
       background: var(--devnahian-sportlixa-brand-volt-hover);
-      transform: translateY(-2px);
     }
 
     /* Offices & Departments Sidebar */
@@ -4810,7 +4741,6 @@
     }
     .devnahian-sportlixa-footer-links-list a:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-footer-menu-arrow {
       width: 11px;
@@ -4962,7 +4892,6 @@
     .devnahian-sportlixa-back-to-top:hover {
       background: var(--devnahian-sportlixa-brand-volt);
       color: #000;
-      transform: translateY(-2px);
     }
 
     .devnahian-sportlixa-toast {
@@ -5085,7 +5014,6 @@
     }
     .devnahian-sportlixa-title-link:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(3px);
     }
 
     .devnahian-sportlixa-badge-tag {
@@ -5221,7 +5149,6 @@
       cursor: pointer;
       transition: transform var(--devnahian-sportlixa-transition-fast);
     }
-    .devnahian-sportlixa-brand-logo-wrap:hover { transform: scale(1.02); }
     .devnahian-sportlixa-brand-mark-svg {
       width: 42px;
       height: 28px;
@@ -5705,12 +5632,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     article.devnahian-sportlixa-archive-card:hover {
-      transform: translateY(-3px);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    article.devnahian-sportlixa-archive-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
     }
     .post-thumbnail.devnahian-sportlixa-archive-thumb {
       width: 230px;
@@ -5859,12 +5782,6 @@
       height: 14px;
       background-color: var(--devnahian-sportlixa-brand-volt);
     }
-    .devnahian-sportlixa-trending-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
     .devnahian-sportlixa-trending-item {
       display: flex;
       align-items: center;
@@ -5874,7 +5791,6 @@
       color: var(--devnahian-sportlixa-text-light);
       transition: transform var(--devnahian-sportlixa-transition-fast);
     }
-    .devnahian-sportlixa-trending-item:hover { transform: translateX(4px); }
     .devnahian-sportlixa-trending-item:hover a { color: var(--devnahian-sportlixa-brand-volt-text); }
     .devnahian-sportlixa-trending-num {
       width: 22px;
@@ -5965,7 +5881,6 @@
     }
     .devnahian-sportlixa-footer-links-list a:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-footer-menu-arrow {
       width: 11px;
@@ -6116,7 +6031,6 @@
     .devnahian-sportlixa-back-to-top:hover {
       background: var(--devnahian-sportlixa-brand-volt);
       color: #000;
-      transform: translateY(-2px);
     }
 
     .devnahian-sportlixa-toast {
@@ -6231,7 +6145,6 @@
     }
     .devnahian-sportlixa-title-link:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(3px);
     }
 
     .devnahian-sportlixa-badge-tag {
@@ -6371,9 +6284,6 @@
       gap: 10px;
       cursor: pointer;
       transition: transform var(--devnahian-sportlixa-transition-fast);
-    }
-    .devnahian-sportlixa-brand-logo-wrap:hover {
-      transform: scale(1.02);
     }
     .devnahian-sportlixa-brand-mark-svg {
       width: 42px;
@@ -6861,7 +6771,6 @@
     }
     .devnahian-sportlixa-score-card:hover {
       border-color: var(--devnahian-sportlixa-brand-volt);
-      transform: translateY(-2px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 10px var(--devnahian-sportlixa-brand-volt-glow);
     }
 
@@ -7044,12 +6953,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-article-card:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-article-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
     }
 
     .devnahian-sportlixa-feed-grid.list-view .devnahian-sportlixa-article-card {
@@ -7124,7 +7029,6 @@
     }
     .devnahian-sportlixa-btn-action-icon:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: scale(1.15);
     }
 
     .devnahian-sportlixa-load-more-wrap {
@@ -7154,7 +7058,6 @@
       background: var(--devnahian-sportlixa-brand-volt);
       color: #000;
       box-shadow: 0 0 18px var(--devnahian-sportlixa-brand-volt-glow);
-      transform: translateY(-2px);
     }
 
     /* ==========================================================================
@@ -7266,7 +7169,6 @@
       transition: transform var(--devnahian-sportlixa-transition-fast), border-color var(--devnahian-sportlixa-transition-fast);
     }
     .devnahian-sportlixa-leader-row:hover {
-      transform: translateX(4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-leader-player-wrap {
@@ -7361,7 +7263,6 @@
       transition: transform var(--devnahian-sportlixa-transition-fast), box-shadow var(--devnahian-sportlixa-transition-fast);
       box-shadow: 0 4px 12px var(--devnahian-sportlixa-brand-volt-glow);
     }
-    .devnahian-sportlixa-btn-play-pill:hover { transform: scale(1.05); }
 
     .devnahian-sportlixa-trending-box {
       background-color: var(--devnahian-sportlixa-bg-card);
@@ -7389,14 +7290,6 @@
       height: 14px;
       background-color: var(--devnahian-sportlixa-brand-volt);
     }
-    .devnahian-sportlixa-trending-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 1;
-      justify-content: space-around;
-    }
     .devnahian-sportlixa-trending-item {
       display: flex;
       align-items: center;
@@ -7406,7 +7299,6 @@
       color: var(--devnahian-sportlixa-text-light);
       transition: transform var(--devnahian-sportlixa-transition-fast);
     }
-    .devnahian-sportlixa-trending-item:hover { transform: translateX(4px); }
     .devnahian-sportlixa-trending-item:hover a { color: var(--devnahian-sportlixa-brand-volt-text); }
     .devnahian-sportlixa-trending-num {
       width: 22px;
@@ -7457,7 +7349,6 @@
     }
     .devnahian-sportlixa-footer-links-list a:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-footer-menu-arrow {
       width: 11px;
@@ -7819,9 +7710,6 @@
       gap: 10px;
       cursor: pointer;
       transition: transform var(--devnahian-sportlixa-transition-fast);
-    }
-    .devnahian-sportlixa-brand-logo-wrap:hover {
-      transform: scale(1.02);
     }
     .devnahian-sportlixa-brand-mark-svg {
       width: 42px;
@@ -8685,7 +8573,6 @@
       transition: transform var(--devnahian-sportlixa-transition-fast), border-color var(--devnahian-sportlixa-transition-fast);
     }
     .devnahian-sportlixa-leader-row:hover {
-      transform: translateX(4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
     }
     .devnahian-sportlixa-leader-player-wrap {
@@ -8768,7 +8655,6 @@
       color: var(--devnahian-sportlixa-text-light);
       transition: transform var(--devnahian-sportlixa-transition-fast);
     }
-    .devnahian-sportlixa-trending-item:hover { transform: translateX(4px); }
     .devnahian-sportlixa-trending-item:hover a { color: var(--devnahian-sportlixa-brand-volt-text); }
     .devnahian-sportlixa-trending-num {
       width: 22px;
@@ -8808,12 +8694,8 @@
       transition: transform var(--devnahian-sportlixa-transition-smooth), border-color var(--devnahian-sportlixa-transition-smooth), box-shadow var(--devnahian-sportlixa-transition-smooth);
     }
     .devnahian-sportlixa-related-card:hover {
-      transform: translateY(-4px);
       border-color: var(--devnahian-sportlixa-brand-volt);
       box-shadow: var(--devnahian-sportlixa-shadow-card-hover);
-    }
-    .devnahian-sportlixa-related-card:hover .devnahian-sportlixa-img-box img {
-      transform: scale(1.08);
     }
     .devnahian-sportlixa-related-thumb {
       height: 180px;
@@ -8876,7 +8758,6 @@
     }
     .devnahian-sportlixa-footer-links-list a:hover {
       color: var(--devnahian-sportlixa-brand-volt-text);
-      transform: translateX(4px);
     }
     .devnahian-sportlixa-footer-menu-arrow {
       width: 11px;
@@ -9026,7 +8907,6 @@
     .devnahian-sportlixa-back-to-top:hover {
       background: var(--devnahian-sportlixa-brand-volt);
       color: #000;
-      transform: translateY(-2px);
     }
 
     .devnahian-sportlixa-toast {
@@ -9107,7 +8987,6 @@
 }
 
 .sport-spot-card:hover {
-  transform: translateY(-4px);
   border-color: rgba(204, 255, 0, 0.35);
 }
 
@@ -9126,10 +9005,6 @@
   object-fit: cover;
   display: block;
   transition: transform 0.35s ease;
-}
-
-.sport-spot-card:hover .sport-spot-img-wrap img {
-  transform: scale(1.05);
 }
 
 /* Category Badge Positioned Over Image */
@@ -9274,10 +9149,6 @@
   transition: transform 0.3s ease;
 }
 
-.devnahian-sportlixa-side-post-row:hover .devnahian-sportlixa-side-post-thumb img {
-  transform: scale(1.08);
-}
-
 .devnahian-sportlixa-side-post-info {
   display: flex;
   flex-direction: column;
@@ -9332,7 +9203,6 @@
   background: rgba(204, 255, 0, 0.06);
   border-color: rgba(204, 255, 0, 0.25);
   color: #ffffff;
-  transform: translateX(4px);
 }
 
 .devnahian-sportlixa-cat-item .cat-count {
@@ -9597,7 +9467,6 @@
 }
 
 .form-submit input[type="submit"]:hover {
-  transform: translateY(-2px);
   opacity: 0.92;
 }
 
@@ -9897,14 +9766,26 @@
 }
 
 @media only screen and (max-width: 767px) {
-  
+  body{
+    padding-bottom: 70px;
+  }
 .devnahian-sportlixa-navbar {
   display: none;
 }
 .devnahian-sportlixa-mobile-chips-bar {
   display: none;
 }
-#devnahian-sportlixa-mobileMenuTrigger {
-  margin-right: 30px;
+
+.devnahian-sportlixa-container {
+	/* padding: 0 14px; */
+	max-width: 400px !important;
+	width: auto;
+}
+  .devnahian-sportlixa-cat-main-layout {
+	display: grid;
+	grid-template-columns: inherit;
+	gap: 28px;
+	margin-bottom: 48px;
+	flex-direction: column;
 }
 }
