@@ -133,41 +133,6 @@ if ( ! defined( 'ABSPATH' ) ) {
   <!-- ==========================================================================
        MOBILE APP BOTTOM BAR (Dynamic 'mobile-bottom-bar' + Drawer Trigger)
        ========================================================================== -->
-  <nav class="devnahian-sportlixa-mobile-bottom-bar" aria-label="<?php esc_attr_e( 'Mobile Bottom App Bar', 'sportlixa' ); ?>">
-    <?php
-    if ( has_nav_menu( 'mobile-bottom-bar' ) ) :
-        wp_nav_menu( [
-            'theme_location' => 'mobile-bottom-bar',
-            'container'      => false,
-            'items_wrap'     => '%3$s',
-            'walker'         => new Sportlixa_Bottom_Bar_Nav_Walker(),
-        ] );
-    else :
-        ?>
-        <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="devnahian-sportlixa-bottom-bar-item <?php echo is_front_page() ? 'active' : ''; ?>">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span><?php esc_html_e( 'Home', 'sportlixa' ); ?></span>
-        </a>
-        <a href="<?php echo esc_url( home_url( '/#scores' ) ); ?>" class="devnahian-sportlixa-bottom-bar-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
-          <span><?php esc_html_e( 'Scores', 'sportlixa' ); ?></span>
-        </a>
-        <a href="<?php echo esc_url( home_url( '/#nfl-standings' ) ); ?>" class="devnahian-sportlixa-bottom-bar-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <span><?php esc_html_e( 'NFL', 'sportlixa' ); ?></span>
-        </a>
-        <a href="<?php echo esc_url( home_url( '/#trending' ) ); ?>" class="devnahian-sportlixa-bottom-bar-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          <span><?php esc_html_e( 'Trending', 'sportlixa' ); ?></span>
-        </a>
-    <?php endif; ?>
-
-    <!-- Drawer trigger tab (retained at the end of bottom bar) -->
-    <div class="devnahian-sportlixa-bottom-bar-item" id="devnahian-sportlixa-mobileMenuTab" role="button" tabindex="0" aria-label="<?php esc_attr_e( 'Open Navigation Menu', 'sportlixa' ); ?>">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      <span><?php esc_html_e( 'Menu', 'sportlixa' ); ?></span>
-    </div>
-  </nav>
 
   <!-- ==========================================================================
        HEADER & DIRECT NAVBAR
