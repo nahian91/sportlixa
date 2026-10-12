@@ -368,7 +368,6 @@ a {
    ========================================================================== */
 header,
 header.site-header {
-  background-color: var(--devnahian-sportlixa-bg-dark);
   border-bottom: 1px solid var(--devnahian-sportlixa-border-color);
   position: sticky;
   top: 0;
